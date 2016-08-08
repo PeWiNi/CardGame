@@ -7,14 +7,15 @@ public class Player : NetworkBehaviour {
     //[SerializeField]
     public Cards Deck = new Cards(15);
     public Cards ActiveCards = new Cards(7);
+    public Cards Graveyard = new Cards(15);
 
-	// Use this for initialization
-	void Start () {
-        /*
+    // Use this for initialization
+    void Start () {
+        
         if (isLocalPlayer) {
             Menu menu = GameObject.Find("NetworkManager").GetComponent<Menu>();
             setupDeck(menu.GetDeck());
-        }*/
+        }
     }
 
     void setupDeck(List<CardStruct.CardType> deck) {

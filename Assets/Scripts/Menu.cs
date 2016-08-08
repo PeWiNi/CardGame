@@ -5,6 +5,7 @@ using System.Collections.Generic;
 public class Menu : MonoBehaviour {
     //[SerializeField]
     public List<CardStruct.CardType> deck = new List<CardStruct.CardType>();
+    public GameObject slot;
     //public Cards deck = new Cards(15);
 
     public void AddCard(string type) { // For UI
@@ -13,7 +14,15 @@ public class Menu : MonoBehaviour {
     }
 
     public void AddCard(Card card) { // For 3D
-        if(Check(card.type)) deck.Add(card.type);
+        if (Check(card.type)) {
+            deck.Add(card.type);
+            if (slot) {
+                float size = slot.GetComponentsInChildren<Card>().Length;
+                GameObject go = Resources.Load<GameObject>("Prefabs/Card");
+                go.GetComponent<Card>().type = card.type;
+                Instantiate(go, new Vector3(slot.transform.position.x + (0.66f * size), slot.transform.position.y, slot.transform.position.z + (-0.01f * size)), Quaternion.Euler(0, 180, 0), slot.transform);
+            }
+        }
     }
 
     public List<CardStruct.CardType> GetDeck() {

@@ -10,4 +10,8 @@ public class Card : MonoBehaviour {
     public CardStruct ToCardStruct() {
         return new CardStruct(type);
     }
+
+    void Start() {
+        gameObject.GetComponent<MeshRenderer>().material = Resources.Load<Material>("Textures/" + CardStruct.determineCard(type).ToUpper());
+    }
 }

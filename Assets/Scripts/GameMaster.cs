@@ -4,8 +4,8 @@ using UnityEngine.Networking;
 using System.Collections.Generic;
 
 public class GameMaster : NetworkBehaviour {
-    Cards p1 = new Cards(15);
-    Cards p2 = new Cards(15);
+    Cards p1 = new Cards(7);
+    Cards p2 = new Cards(7);
     /// <summary>
     /// 2 Players
     /// Each with a Deck of 15 Cards
@@ -24,6 +24,8 @@ public class GameMaster : NetworkBehaviour {
 	}
 
     public void Matchup(Cards p1Hand, Cards p2Hand) {
+        p1 = p1Hand;
+        p2 = p2Hand;
         #region Primary Matchup
         int[] p1Primary = strengthArray(p1Hand);
         int[] p2Primary = strengthArray(p2Hand);
