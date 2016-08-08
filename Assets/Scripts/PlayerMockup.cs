@@ -51,7 +51,6 @@ public class PlayerMockup : NetworkBehaviour {
                 try {
                     Card card = hit.collider.GetComponent<Card>();
                     AddCard(card);
-                    print(CardStruct.determineCard(card.type));
                 }
                 catch { print("Not a card.."); };
             }

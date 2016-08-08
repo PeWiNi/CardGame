@@ -1,8 +1,11 @@
 ﻿using UnityEngine;
 using System.Collections;
 using UnityEngine.Networking;
+using System.Collections.Generic;
 
 public class GameMaster : NetworkBehaviour {
+    Cards p1 = new Cards(15);
+    Cards p2 = new Cards(15);
     /// <summary>
     /// 2 Players
     /// Each with a Deck of 15 Cards
@@ -10,8 +13,8 @@ public class GameMaster : NetworkBehaviour {
     /// 7 Types of Cards
     /// Each Card beats 2 other types (Primary and Secondary) and can be beaten by 2 other types
     /// </summary>
-	// Use this for initialization
-	void Start () {
+    // Use this for initialization
+    void Start () {
 	    
 	}
 	
@@ -25,8 +28,8 @@ public class GameMaster : NetworkBehaviour {
         int[] p1Primary = strengthArray(p1Hand);
         int[] p2Primary = strengthArray(p2Hand);
 
-        Cards p1 = killStuff(p1Hand, p2Primary);
-        Cards p2 = killStuff(p2Hand, p1Primary);
+        p1.Renew(killStuff(p1Hand, p2Primary));
+        p2.Renew(killStuff(p2Hand, p1Primary));
         #endregion
         print("Primary matchup: ");
         printState(p1, p2);
@@ -35,11 +38,11 @@ public class GameMaster : NetworkBehaviour {
         int[] p1Secondary = strengthArray(p1, false);
         int[] p2Secondary = strengthArray(p2, false);
 
-        p1Hand = killStuff(p1, p2Secondary);
-        p2Hand = killStuff(p2, p1Secondary);
+        p1.Renew(killStuff(p1, p2Secondary));
+        p2.Renew(killStuff(p2, p1Secondary));
         #endregion
         print("Secondary matchup: ");
-        printState(p1Hand, p2Hand);
+        printState(p1, p2);
     }
 
     void printState(Cards deck1, Cards deck2) {
@@ -82,61 +85,57 @@ public class GameMaster : NetworkBehaviour {
         return strengths;
     }
 
-    Cards killStuff(Cards hand, int[] opponentStrengths) {
+    List<CardStruct> killStuff(Cards hand, int[] opponentStrengths) {
+        List<CardStruct> handiez = new List<CardStruct>(15);
         foreach (CardStruct card in hand) {
             switch (card.type) {
                 case CardStruct.CardType.Reptile:
                     if (opponentStrengths[0] > 0) {
-                        card.Kill();
+                        handiez.Add(new CardStruct(card.Kill()));
                         opponentStrengths[0]--;
-                    }
+                    } else { handiez.Add(new CardStruct(card)); }
                     break;
                 case CardStruct.CardType.Insect:
                     if (opponentStrengths[1] > 0) {
-                        card.Kill();
+                        handiez.Add(new CardStruct(card.Kill()));
                         opponentStrengths[1]--;
-                    }
+                    } else { handiez.Add(new CardStruct(card)); }
                     break;
                 case CardStruct.CardType.Avian:
                     if (opponentStrengths[2] > 0) {
-                        card.Kill();
+                        handiez.Add(new CardStruct(card.Kill()));
                         opponentStrengths[2]--;
-                    }
+                    } else { handiez.Add(new CardStruct(card)); }
                     break;
                 case CardStruct.CardType.Mammal:
                     if (opponentStrengths[3] > 0) {
-                        card.Kill();
+                        handiez.Add(new CardStruct(card.Kill()));
                         opponentStrengths[3]--;
-                    }
+                    } else { handiez.Add(new CardStruct(card)); }
                     break;
                 case CardStruct.CardType.Aquatic:
                     if (opponentStrengths[4] > 0) {
-                        card.Kill();
+                        handiez.Add(new CardStruct(card.Kill()));
                         opponentStrengths[4]--;
-                    }
+                    } else { handiez.Add(new CardStruct(card)); }
                     break;
                 case CardStruct.CardType.Plant:
                     if (opponentStrengths[5] > 0) {
-                        card.Kill();
+                        handiez.Add(new CardStruct(card.Kill()));
                         opponentStrengths[5]--;
-                    }
+                    } else { handiez.Add(new CardStruct(card)); }
                     break;
                 case CardStruct.CardType.Fungus:
                     if (opponentStrengths[6] > 0) {
-                        card.Kill();
+                        handiez.Add(new CardStruct(card.Kill()));
                         opponentStrengths[6]--;
-                    }
+                    } else { handiez.Add(new CardStruct(card)); }
                     break;
                 default:
+                    handiez.Add(new CardStruct(card)); 
                     continue;
             }
-            print("I died");
         }
-        int dead = 0;
-        foreach (CardStruct card in hand) {
-            if (card.destroyed) dead++;
-        }
-        print(dead);
-        return hand;
+        return handiez;
     }
 }

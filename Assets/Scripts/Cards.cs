@@ -1,9 +1,17 @@
 ﻿using UnityEngine;
 using System.Collections;
 using UnityEngine.Networking;
+using System.Collections.Generic;
 
 public class Cards : SyncListStruct<CardStruct> {
     int Size;
+    
+    public void Renew(List<CardStruct> lst) {
+        Clear();
+        lst.ForEach((item) => {
+            Add(new CardStruct(item));
+        });
+    }
 
     public Cards(int size) {
         Size = size;
@@ -115,11 +123,19 @@ public struct CardStruct {
         // Can be expanded for more than 2 strengths..
     }
 
+    public CardStruct(CardStruct cs) {
+        type = cs.type;
+        destroyed = cs.destroyed;
+        strengthPrimary = cs.strengthPrimary;
+        strengthSecondary = cs.strengthSecondary;
+    }
+
     /// <summary>
     /// Card was countered and dies
     /// </summary>
-    public void Kill() {
+    public CardStruct Kill() {
         destroyed = true;
+        return this;
     }
 
     /// <summary>
