@@ -12,7 +12,23 @@ public class Cards : SyncListStruct<CardStruct> {
     public void AddCard(CardStruct c) {
         if(Count < Size)
             Add(c);
-    } 
+    }
+
+    public override string ToString() {
+        string s = "";
+        foreach(CardStruct c in this) {
+            s += "[" + CardStruct.determineCard(c.type) + "] ";
+        }
+        return s;
+    }
+
+    public string ActiveCards() {
+        string s = "";
+        foreach (CardStruct c in this) {
+            s += "[" + (c.destroyed ?  " " : CardStruct.determineCard(c.type)) + "] ";
+        }
+        return s;
+    }
 }
 
 public struct CardStruct { 

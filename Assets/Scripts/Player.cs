@@ -10,11 +10,11 @@ public class Player : NetworkBehaviour {
 
 	// Use this for initialization
 	void Start () {
-
+        /*
         if (isLocalPlayer) {
             Menu menu = GameObject.Find("NetworkManager").GetComponent<Menu>();
             setupDeck(menu.GetDeck());
-        }
+        }*/
     }
 
     void setupDeck(List<CardStruct.CardType> deck) {
