@@ -24,7 +24,7 @@ public class Menu : MonoBehaviour {
             if (slot) {
                 float size = slot.GetComponentsInChildren<Card>().Length;
                 GameObject go = Resources.Load<GameObject>("Prefabs/Card");
-                go.GetComponent<Card>().type = card.type;
+                go.GetComponent<Card>().SetCardStruct(card.ToCardStruct());
                 go.GetComponent<Card>().interaction = Card.Interaction.Remove;
                 Instantiate(go, new Vector3(slot.transform.position.x + (0.66f * size), slot.transform.position.y, slot.transform.position.z + (-0.01f * size)), Quaternion.Euler(0, 180, 0), slot.transform);
             }

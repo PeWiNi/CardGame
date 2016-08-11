@@ -4,6 +4,8 @@ using UnityEngine.Networking;
 using System.Collections.Generic;
 
 public class GameMaster : NetworkBehaviour {
+    BoardScript GameBoard;
+
     Cards p1 = new Cards(7);
     Cards p2 = new Cards(7);
     /// <summary>
@@ -95,10 +97,14 @@ public class GameMaster : NetworkBehaviour {
 
     #region Simulation functions
     public void DrawCards() {
+        if(!GameBoard) {
+            GameBoard = FindObjectOfType<BoardScript>();
+        }
         foreach (GameObject go in GameObject.FindGameObjectsWithTag("Player")) {
             go.GetComponent<Events>().SendCleanupDeck();
             go.GetComponent<Events>().SendDrawCards();
         }
+        StartCoroutine(UpdateArt());
     }
 
     public void MatchupCurrent() {
@@ -109,6 +115,17 @@ public class GameMaster : NetworkBehaviour {
         Matchup(playerCards[0], playerCards[1]);
     }
     #endregion
+
+    /// <summary>
+    /// Refresh p1 and p2 for the sake of updating the cards on the table
+    /// </summary>
+    IEnumerator UpdateArt() {
+        yield return new WaitForSeconds(1);
+        GameObject[] players = GameObject.FindGameObjectsWithTag("Player");
+        p1 = players[0].GetComponent<Player>().ActiveCards;
+        p2 = players[1].GetComponent<Player>().ActiveCards;
+        GameBoard.UpdateHandCards(p1, p2);
+    }
 
     List<CardStruct> killStuff(Cards hand, int[] opponentStrengths) {
         List<CardStruct> handiez = new List<CardStruct>(15);

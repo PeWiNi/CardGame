@@ -23,7 +23,6 @@ public class Player : NetworkBehaviour {
     void setupDeck(List<CardStruct.CardType> deck) {
         foreach(CardStruct.CardType ct in deck) {
             CmdAddToDeck(ct);
-            //Deck.Add(new CardStruct(ct));
         }
     }
 
@@ -59,8 +58,7 @@ public class Player : NetworkBehaviour {
             } else {
                 temp.Add(ct);
             }
-        }
-        ActiveCards.Renew(temp);
+        } ActiveCards.Renew(temp);
     }
 
     void OnEnable() {
