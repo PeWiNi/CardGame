@@ -23,9 +23,15 @@ public class GameMaster : NetworkBehaviour {
 	
 	}
 
+    public void StartGame() {
+
+    }
+
     public void Matchup(Cards p1Hand, Cards p2Hand) {
         p1 = p1Hand;
         p2 = p2Hand;
+        print("Deck matchup: ");
+        printState(p1, p2);
         #region Primary Matchup
         int[] p1Primary = strengthArray(p1Hand);
         int[] p2Primary = strengthArray(p2Hand);
@@ -87,8 +93,27 @@ public class GameMaster : NetworkBehaviour {
         return strengths;
     }
 
+    #region Simulation functions
+    public void DrawCards() {
+        foreach (GameObject go in GameObject.FindGameObjectsWithTag("Player")) {
+            go.GetComponent<Events>().SendCleanupDeck();
+            go.GetComponent<Events>().SendDrawCards();
+        }
+    }
+
+    public void MatchupCurrent() {
+        GameObject[] go = GameObject.FindGameObjectsWithTag("Player");
+        Cards[] playerCards = new Cards[go.Length];
+        for (int i = 0; i < go.Length; i++)
+            playerCards[i] = go[i].GetComponent<Player>().ActiveCards;
+        Matchup(playerCards[0], playerCards[1]);
+    }
+    #endregion
+
     List<CardStruct> killStuff(Cards hand, int[] opponentStrengths) {
         List<CardStruct> handiez = new List<CardStruct>(15);
+        // In the future we might want to take every card 1 by 1 to make animations 'n' such
+        //   or we could manage another array alongside (managing which card if more of same type) the opponentStrengths and then check for type to match against card
         foreach (CardStruct card in hand) {
             switch (card.type) {
                 case CardStruct.CardType.Reptile:

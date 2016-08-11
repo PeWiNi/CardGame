@@ -4,7 +4,7 @@ using UnityEngine.Networking;
 using System.Collections.Generic;
 
 public class Cards : SyncListStruct<CardStruct> {
-    int Size;
+    public int Size;
     
     public void Renew(List<CardStruct> lst) {
         Clear();
@@ -48,6 +48,28 @@ public struct CardStruct {
 
     public enum CardType {
         Reptile, Insect, Avian, Mammal, Aquatic, Plant, Fungus, Unspecified
+    }
+
+    public static CardType RandomCardType() {
+        int rnd = Random.Range(0, 7);
+        switch (rnd) {
+            case 0:
+                return CardType.Reptile;
+            case 1:
+                return CardType.Insect;
+            case 2:
+                return CardType.Avian;
+            case 3:
+                return CardType.Mammal;
+            case 4:
+                return CardType.Aquatic;
+            case 5:
+                return CardType.Plant;
+            case 6:
+                return CardType.Fungus;
+            default:
+                return CardType.Unspecified;
+        }
     }
 
     public static CardType determineCard(string s) {
@@ -190,5 +212,9 @@ public struct CardStruct {
             default:
                 return CardType.Unspecified;
         }
+    }
+
+    public override string ToString() {
+        return determineCard(type);
     }
 }

@@ -7,10 +7,15 @@ public class Menu : MonoBehaviour {
     public List<CardStruct.CardType> deck = new List<CardStruct.CardType>();
     public GameObject slot;
     //public Cards deck = new Cards(15);
+    
+    public void AddCard() {
+        CardStruct.CardType ct = CardStruct.RandomCardType();
+        if (Check(ct)) deck.Add(ct);
+    }
 
     public void AddCard(string type) { // For UI
         CardStruct.CardType ct = CardStruct.determineCard(type);
-        //if (Check(ct)) deck.Add(ct);
+        if (Check(ct)) deck.Add(ct);
     }
 
     public void AddCard(Card card) { // For 3D
@@ -20,12 +25,29 @@ public class Menu : MonoBehaviour {
                 float size = slot.GetComponentsInChildren<Card>().Length;
                 GameObject go = Resources.Load<GameObject>("Prefabs/Card");
                 go.GetComponent<Card>().type = card.type;
+                go.GetComponent<Card>().interaction = Card.Interaction.Remove;
                 Instantiate(go, new Vector3(slot.transform.position.x + (0.66f * size), slot.transform.position.y, slot.transform.position.z + (-0.01f * size)), Quaternion.Euler(0, 180, 0), slot.transform);
             }
         }
     }
 
+    public void RemoveCard(Card card) {
+        deck.Remove(card.type);
+        bool killed = false;
+        if (slot) {
+            foreach (Card c in slot.GetComponentsInChildren<Card>()) {
+                if (c.type == card.type && !killed) {
+                    Destroy(c.gameObject);
+                    killed = true;
+                    continue;
+                } if (killed) c.transform.position -= new Vector3(.66f, 0, -0.01f);
+            }
+        }
+    }
+
     public List<CardStruct.CardType> GetDeck() {
+        while (deck.Count < 15)
+            AddCard();
         return deck;
     }
 
@@ -63,11 +85,14 @@ public class Menu : MonoBehaviour {
                 //hit.collider.transform.tag = "select";
                 try {
                     Card card = hit.collider.GetComponent<Card>();
-                    AddCard(card);
+                    if(card.interaction == Card.Interaction.Add)
+                        AddCard(card);
+                    if (card.interaction == Card.Interaction.Remove)
+                        RemoveCard(card);
                     print(CardStruct.determineCard(card.type));
                 } catch { print("Not a card.."); };
             }
         }
-//#endif
+        //#endif
     }
 }

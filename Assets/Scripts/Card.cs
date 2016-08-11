@@ -6,6 +6,11 @@ using System.Collections;
 /// </summary>
 public class Card : MonoBehaviour {
     public CardStruct.CardType type;
+    public Interaction interaction = Interaction.Unspecified;
+
+    public enum Interaction {
+        Select, Add, Remove, Unspecified
+    }
 
     public CardStruct ToCardStruct() {
         return new CardStruct(type);
