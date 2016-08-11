@@ -1,6 +1,6 @@
 fileFormatVersion: 2
-guid: 162616921059b8d4bb509f652ced68eb
-timeCreated: 1470732984
+guid: f0b5474e6f372da4c8deaf1bd5ca2c33
+timeCreated: 1470916053
 licenseType: Free
 ModelImporter:
   serializedVersion: 19
@@ -9,8 +9,7 @@ ModelImporter:
     400000: //RootNode
     2300000: //RootNode
     3300000: //RootNode
-    4300000: pSphere1
-    4300002: pufferFish
+    4300000: shark
     9500000: //RootNode
   materials:
     importMaterials: 0
