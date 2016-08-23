@@ -30,22 +30,30 @@ public class Player : NetworkBehaviour {
     void CmdAddToDeck(CardStruct.CardType ct) {
         Deck.Add(new CardStruct(ct));
     }
-
+    
     public void DrawCards() {
-        HashSet<int> rng = new HashSet<int>();
-        while (ActiveCards.Count < ActiveCards.Size && ActiveCards.Count < Deck.Count - Graveyard.Count) {
-            int rnd = Random.Range(0, Deck.Count);
-            if (!Deck.GetItem(rnd).destroyed) {
-                rng.Add(rnd);
-                print("Card #" + rnd + " is being added " + (rng.Count > ActiveCards.Count) + ", total count: " + rng.Count);
-                if (rng.Count > ActiveCards.Count)
-                    ActiveCards.Add(Deck.GetItem(rnd));
-            }
-        }
+        CmdGiveHand();
     }
 
     public void Cleanup() {
         CmdRemoveDead();
+    }
+
+    [Command]
+    void CmdGiveHand() { //POLISH: make it not call a cmd but assign hand on server
+        HashSet<int> rng = new HashSet<int>();
+        //print("I am gonna go in there");
+        while (ActiveCards.Count < ActiveCards.Size && ActiveCards.Count < Deck.Count - Graveyard.Count) {
+            //print("I was here!");
+            int rnd = Random.Range(0, Deck.Count);
+            if (!Deck.GetItem(rnd).destroyed) {
+                rng.Add(rnd);
+                //print("Card #" + rnd + " is being added " + (rng.Count > ActiveCards.Count) + ", total count: " + rng.Count);
+                if (rng.Count > ActiveCards.Count) {
+                    ActiveCards.Add(Deck.GetItem(rnd));
+                }
+            }
+        }
     }
 
     [Command]
