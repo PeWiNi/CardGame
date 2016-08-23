@@ -14,6 +14,8 @@ public class Card : NetworkBehaviour {
     //public Cards list = new Cards(0); // Not syncronized with clients (reference lost over network)
     [SerializeField][SyncVar]
     public int listIndex;
+    [SyncVar]
+    public Quaternion rotation;
     #endregion
 
     public Interaction interaction = Interaction.Unspecified;
@@ -29,6 +31,7 @@ public class Card : NetworkBehaviour {
 
     void Start() {
         gameObject.GetComponent<MeshRenderer>().material = Resources.Load<Material>("Textures/" + CardStruct.determineCard(type).ToUpper());
+        transform.rotation = rotation;
     }
 
     void Update() {
