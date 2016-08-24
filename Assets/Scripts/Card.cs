@@ -8,14 +8,14 @@ using UnityEngine.Networking;
 public class Card : NetworkBehaviour {
     #region Should be a unique identifier for the card
     //[SyncVar(hook = "SyncCardStruct")]
-    public CardStruct.CardType type; // Dummy card type
+    public CardStruct.CardFamily type; // Dummy card type
     [SerializeField][SyncVar]
     public GameObject owner;
     //public Cards list = new Cards(0); // Not syncronized with clients (reference lost over network)
     [SerializeField][SyncVar]
     public int listIndex;
     [SyncVar]
-    public Quaternion rotation;
+    Quaternion rotation = Quaternion.Euler(0, 180, 0);
     #endregion
 
     public Interaction interaction = Interaction.Unspecified;
@@ -30,7 +30,7 @@ public class Card : NetworkBehaviour {
     }
 
     void Start() {
-        gameObject.GetComponent<MeshRenderer>().material = Resources.Load<Material>("Textures/" + CardStruct.determineCard(type).ToUpper());
+        gameObject.GetComponent<MeshRenderer>().material = Resources.Load<Material>("Materials/" + CardStruct.determineCard(type).ToUpper());
         transform.rotation = rotation;
     }
 
@@ -42,8 +42,8 @@ public class Card : NetworkBehaviour {
                     gameObject.SetActive(false);
                     return;
                 }
-                if (type != list.GetItem(listIndex).type) {
-                    type = list.GetItem(listIndex).type;
+                if (type != list.GetItem(listIndex).family) {
+                    type = list.GetItem(listIndex).family;
                     gameObject.GetComponent<MeshRenderer>().material = Resources.Load<Material>("Textures/" + CardStruct.determineCard(type).ToUpper());
                 }
                 if (!dead && list.GetItem(listIndex).destroyed) {
@@ -62,7 +62,11 @@ public class Card : NetworkBehaviour {
         owner = player;
         Player ply = owner.GetComponent<Player>();
         listIndex = index;
-        type = ply.ActiveCards.GetItem(listIndex).type;
+        type = ply.ActiveCards.GetItem(listIndex).family;
         gameObject.GetComponent<MeshRenderer>().material = Resources.Load<Material>("Textures/" + CardStruct.determineCard(type).ToUpper());
+    }
+
+    public void SetRotation(Quaternion rotation) {
+        this.rotation = rotation;
     }
 }

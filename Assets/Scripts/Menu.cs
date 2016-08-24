@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 public class Menu : MonoBehaviour {
     //[SerializeField]
-    public List<CardStruct.CardType> deck = new List<CardStruct.CardType>();
+    public List<CardStruct.CardFamily> deck = new List<CardStruct.CardFamily>();
     public GameObject slot;
     //public Cards deck = new Cards(15);
     
@@ -18,12 +18,12 @@ public class Menu : MonoBehaviour {
     }
 
     public void AddCard() {
-        CardStruct.CardType ct = CardStruct.RandomCardType();
+        CardStruct.CardFamily ct = CardStruct.RandomCardType();
         if (Check(ct)) deck.Add(ct);
     }
 
     public void AddCard(string type) { // For UI
-        CardStruct.CardType ct = CardStruct.determineCard(type);
+        CardStruct.CardFamily ct = CardStruct.determineCard(type);
         if (Check(ct)) deck.Add(ct);
     }
 
@@ -36,7 +36,7 @@ public class Menu : MonoBehaviour {
                 go.GetComponent<Card>().type = card.type;
                 //go.GetComponent<Card>().SetCardStruct(card.ToCardStruct());
                 go.GetComponent<Card>().interaction = Card.Interaction.Remove;
-                Instantiate(go, new Vector3(slot.transform.position.x + (0.66f * size), slot.transform.position.y, slot.transform.position.z + (-0.01f * size)), Quaternion.Euler(0, 180, 0), slot.transform);
+                Instantiate(go, new Vector3(slot.transform.position.x + (0.85f * size), slot.transform.position.y, slot.transform.position.z + (-0.01f * size)), Quaternion.Euler(0, 180, 0), slot.transform);
             }
         }
     }
@@ -55,15 +55,15 @@ public class Menu : MonoBehaviour {
         }
     }
 
-    public List<CardStruct.CardType> GetDeck() {
+    public List<CardStruct.CardFamily> GetDeck() {
         while (deck.Count < 15)
             AddCard();
         return deck;
     }
 
-    bool Check(CardStruct.CardType card) {
+    bool Check(CardStruct.CardFamily card) {
         int occurances = 0;
-        foreach(CardStruct.CardType c in deck) {
+        foreach(CardStruct.CardFamily c in deck) {
             if (c == card)
                 occurances++;
         }

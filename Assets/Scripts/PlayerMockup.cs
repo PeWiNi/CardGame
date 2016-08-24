@@ -30,10 +30,10 @@ public class PlayerMockup : NetworkBehaviour {
         GameObject.Find("GameMaster").GetComponent<GameMaster>().Matchup(deck1, deck2);
     }
 
-    bool Check(CardStruct.CardType card, Cards deck) {
+    bool Check(CardStruct.CardFamily card, Cards deck) {
         int occurances = 0;
         foreach (CardStruct c in deck) {
-            if (c.type == card)
+            if (c.family == card)
                 occurances++;
         }
         return occurances < 3 && deck.Count < 15;

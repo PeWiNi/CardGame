@@ -1,26 +1,20 @@
 ﻿using UnityEngine;
 using System.Collections;
 using UnityEngine.Networking;
+using System.Collections.Generic;
 
 public class Events : NetworkBehaviour {
-    public delegate void DrawCards();
+    public delegate void Mulligan(List<CardStruct> cards);
     [SyncEvent]
-    public event DrawCards EventDrawCards;
-    public delegate void CleanupDeck();
-    [SyncEvent]
-    public event CleanupDeck EventCleanupDeck;
+    public event Mulligan EventMulligan;
+
     public delegate void UpdateCards(Player p1, Player p2);
     [SyncEvent]
     public event UpdateCards EventUpdateCards;
 
-    public void SendDrawCards() {
-        if (EventDrawCards != null)
-            EventDrawCards();
-    }
-
-    public void SendCleanupDeck() {
-        if (EventCleanupDeck != null)
-            EventCleanupDeck();
+    public void SendMulligan(List<CardStruct> cards) {
+        if (EventMulligan != null)
+            EventMulligan(cards);
     }
 
     public void SendUpdateCards(Player p1, Player p2) {

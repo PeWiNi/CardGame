@@ -63,25 +63,25 @@ public class GameMaster : NetworkBehaviour {
         foreach (CardStruct card in hand) {
             if(!card.destroyed) {
                 switch (primary ? card.strengthPrimary : card.strengthSecondary) {
-                    case CardStruct.CardType.Reptile:
+                    case CardStruct.CardFamily.Reptile:
                         strengths[0]++;
                         break;
-                    case CardStruct.CardType.Insect:
+                    case CardStruct.CardFamily.Insect:
                         strengths[1]++;
                         break;
-                    case CardStruct.CardType.Avian:
+                    case CardStruct.CardFamily.Avian:
                         strengths[2]++;
                         break;
-                    case CardStruct.CardType.Mammal:
+                    case CardStruct.CardFamily.Mammal:
                         strengths[3]++;
                         break;
-                    case CardStruct.CardType.Aquatic:
+                    case CardStruct.CardFamily.Aquatic:
                         strengths[4]++;
                         break;
-                    case CardStruct.CardType.Plant:
+                    case CardStruct.CardFamily.Plant:
                         strengths[5]++;
                         break;
-                    case CardStruct.CardType.Fungus:
+                    case CardStruct.CardFamily.Fungus:
                         strengths[6]++;
                         break;
                     default:
@@ -112,6 +112,7 @@ public class GameMaster : NetworkBehaviour {
             //GameBoard.GetComponent<Events>().SendUpdateCards(p1, p2); //Recieve event somewhere
             //go.GetComponent<Events>().SendUpdateCards(p1, p2); //Recieve event somewhere
         }
+        // ToDo: mulligan before updating art (at least for both players)
         StartCoroutine(UpdateArt());
     }
 
@@ -171,44 +172,44 @@ public class GameMaster : NetworkBehaviour {
         // In the future we might want to take every card 1 by 1 to make animations 'n' such
         //   or we could manage another array alongside (managing which card if more of same type) the opponentStrengths and then check for type to match against card
         foreach (CardStruct card in hand) {
-            switch (card.type) {
-                case CardStruct.CardType.Reptile:
+            switch (card.family) {
+                case CardStruct.CardFamily.Reptile:
                     if (opponentStrengths[0] > 0) {
                         handiez.Add(new CardStruct(card.Kill()));
                         opponentStrengths[0]--;
                     } else { handiez.Add(new CardStruct(card)); }
                     break;
-                case CardStruct.CardType.Insect:
+                case CardStruct.CardFamily.Insect:
                     if (opponentStrengths[1] > 0) {
                         handiez.Add(new CardStruct(card.Kill()));
                         opponentStrengths[1]--;
                     } else { handiez.Add(new CardStruct(card)); }
                     break;
-                case CardStruct.CardType.Avian:
+                case CardStruct.CardFamily.Avian:
                     if (opponentStrengths[2] > 0) {
                         handiez.Add(new CardStruct(card.Kill()));
                         opponentStrengths[2]--;
                     } else { handiez.Add(new CardStruct(card)); }
                     break;
-                case CardStruct.CardType.Mammal:
+                case CardStruct.CardFamily.Mammal:
                     if (opponentStrengths[3] > 0) {
                         handiez.Add(new CardStruct(card.Kill()));
                         opponentStrengths[3]--;
                     } else { handiez.Add(new CardStruct(card)); }
                     break;
-                case CardStruct.CardType.Aquatic:
+                case CardStruct.CardFamily.Aquatic:
                     if (opponentStrengths[4] > 0) {
                         handiez.Add(new CardStruct(card.Kill()));
                         opponentStrengths[4]--;
                     } else { handiez.Add(new CardStruct(card)); }
                     break;
-                case CardStruct.CardType.Plant:
+                case CardStruct.CardFamily.Plant:
                     if (opponentStrengths[5] > 0) {
                         handiez.Add(new CardStruct(card.Kill()));
                         opponentStrengths[5]--;
                     } else { handiez.Add(new CardStruct(card)); }
                     break;
-                case CardStruct.CardType.Fungus:
+                case CardStruct.CardFamily.Fungus:
                     if (opponentStrengths[6] > 0) {
                         handiez.Add(new CardStruct(card.Kill()));
                         opponentStrengths[6]--;

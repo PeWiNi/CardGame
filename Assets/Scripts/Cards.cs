@@ -25,7 +25,7 @@ public class Cards : SyncListStruct<CardStruct> {
     public override string ToString() {
         string s = "";
         foreach(CardStruct c in this) {
-            s += "[" + CardStruct.determineCard(c.type) + "] ";
+            s += "[" + CardStruct.determineCard(c.family) + "] ";
         }
         return s;
     }
@@ -33,81 +33,86 @@ public class Cards : SyncListStruct<CardStruct> {
     public string ActiveCards() {
         string s = "";
         foreach (CardStruct c in this) {
-            s += "[" + (c.destroyed ?  " " : CardStruct.determineCard(c.type)) + "] ";
+            s += "[" + (c.destroyed ?  " " : CardStruct.determineCard(c.family)) + "] ";
         }
         return s;
     }
 }
 
 public struct CardStruct { 
-    public CardType type;
+    public CardFamily family;
+    public int type;
     public bool destroyed;
-    public CardType strengthPrimary;
-    public CardType strengthSecondary;
+    public CardFamily strengthPrimary;
+    public CardFamily strengthSecondary;
+    public Rarity rarity;
     // default defenses or special card with other defense in specific family?
 
-    public enum CardType {
+    public enum CardFamily {
         Reptile, Insect, Avian, Mammal, Aquatic, Plant, Fungus, Unspecified
     }
+    public enum Rarity {
+        Common, Uncommon, Rare, Epic, Legendary, Unspecified
+    }
 
-    public static CardType RandomCardType() {
+    public static CardFamily RandomCardType() {
         int rnd = Random.Range(0, 7);
         switch (rnd) {
             case 0:
-                return CardType.Reptile;
+                return CardFamily.Reptile;
             case 1:
-                return CardType.Insect;
+                return CardFamily.Insect;
             case 2:
-                return CardType.Avian;
+                return CardFamily.Avian;
             case 3:
-                return CardType.Mammal;
+                return CardFamily.Mammal;
             case 4:
-                return CardType.Aquatic;
+                return CardFamily.Aquatic;
             case 5:
-                return CardType.Plant;
+                return CardFamily.Plant;
             case 6:
-                return CardType.Fungus;
+                return CardFamily.Fungus;
             default:
-                return CardType.Unspecified;
+                return CardFamily.Unspecified;
         }
     }
 
-    public static CardType determineCard(string s) {
+    public static CardFamily determineCard(string s) {
         switch (s) {
             case "Reptile":
-                return CardType.Reptile;
+                return CardFamily.Reptile;
             case "Insect":
-                return CardType.Insect;
+                return CardFamily.Insect;
             case "Avian":
-                return CardType.Avian;
+                return CardFamily.Avian;
             case "Mammal":
-                return CardType.Mammal;
+                return CardFamily.Mammal;
             case "Aquatic":
-                return CardType.Aquatic;
+                return CardFamily.Aquatic;
             case "Plant":
-                return CardType.Plant;
+                return CardFamily.Plant;
             case "Fungus":
-                return CardType.Fungus;
+                return CardFamily.Fungus;
             default:
-                return CardType.Unspecified;
+                return CardFamily.Unspecified;
         }
     }
 
-    public static string determineCard(CardType s) {
+    public static string determineCard(CardFamily s) {
         switch (s) {
-            case CardType.Reptile:
+            case CardFamily.Reptile:
                 return "Reptile";
-            case CardType.Insect:
+            case CardFamily.Insect:
                 return "Insect";
-            case CardType.Avian:
+            case CardFamily.Avian:
                 return "Avian";
-            case CardType.Mammal:
+            case CardFamily.Mammal:
                 return "Mammal";
-            case CardType.Aquatic:
+            case CardFamily.Aquatic:
                 return "Aquatic";
-            case CardType.Plant:
+            case CardFamily.Plant:
                 return "Plant";
-            case CardType.Fungus:
+            case CardFamily.Fungus:
                 return "Fungus";
             default:
                 return "Unknown";
@@ -117,39 +122,46 @@ public struct CardStruct {
     /// <summary>
     /// 
     /// </summary>
-    /// <param name="myType">Card family type</param>
-    public CardStruct(CardType myType) {
-        type = myType;
+    /// <param name="myFamily">Card family type</param>
+    public CardStruct(CardFamily myFamily) {
+        family = myFamily;
+        type = 0;
         destroyed = false;
-        strengthPrimary = CardType.Unspecified;
-        strengthSecondary = CardType.Unspecified;
+        strengthPrimary = CardFamily.Unspecified;
+        strengthSecondary = CardFamily.Unspecified;
+        rarity = Rarity.Unspecified;
 
         // Apply default strengths
-        strengthPrimary = defaultStrengthP(myType);
-        strengthSecondary = defaultStrengthS(myType);
+        strengthPrimary = defaultStrengthP(myFamily);
+        strengthSecondary = defaultStrengthS(myFamily);
     }
 
     /// <summary>
     /// Define different strengths from the default
     /// </summary>
-    /// <param name="type">Card family type</param>
+    /// <param name="myFamily">Card family type</param>
     /// <param name="strengths">List of strengths (Primary@[0], Secondary@[1])</param>
-    public CardStruct(CardType type, CardType[] strengths) {
-        this.type = type;
+    public CardStruct(CardFamily myFamily, CardFamily[] strengths) {
+        this.family = myFamily;
+        type = 0;
         destroyed = false;
         strengthPrimary = strengths[0];
+        rarity = Rarity.Unspecified;
+
         if (strengths.Length > 1)
             strengthSecondary = strengths[0];
         else
-            strengthSecondary = CardType.Unspecified;
+            strengthSecondary = CardFamily.Unspecified;
         // Can be expanded for more than 2 strengths..
     }
 
     public CardStruct(CardStruct cs) {
+        family = cs.family;
         type = cs.type;
         destroyed = cs.destroyed;
         strengthPrimary = cs.strengthPrimary;
         strengthSecondary = cs.strengthSecondary;
+        rarity = cs.rarity;
     }
 
     /// <summary>
@@ -166,24 +178,24 @@ public struct CardStruct {
     /// </summary>
     /// <param name="ctype">Card type</param>
     /// <returns>Default Primary strength of ctype</returns>
-    CardType defaultStrengthP(CardType ctype) {
+    CardFamily defaultStrengthP(CardFamily ctype) {
         switch(ctype) {
-            case CardType.Reptile:
-                return CardType.Insect;
-            case CardType.Insect:
-                return CardType.Mammal;
-            case CardType.Avian:
-                return CardType.Reptile;
-            case CardType.Mammal:
-                return CardType.Avian;
-            case CardType.Aquatic:
-                return CardType.Fungus;
-            case CardType.Plant:
-                return CardType.Aquatic;
-            case CardType.Fungus:
-                return CardType.Plant;
+            case CardFamily.Reptile:
+                return CardFamily.Insect;
+            case CardFamily.Insect:
+                return CardFamily.Mammal;
+            case CardFamily.Avian:
+                return CardFamily.Reptile;
+            case CardFamily.Mammal:
+                return CardFamily.Avian;
+            case CardFamily.Aquatic:
+                return CardFamily.Fungus;
+            case CardFamily.Plant:
+                return CardFamily.Aquatic;
+            case CardFamily.Fungus:
+                return CardFamily.Plant;
             default:
-                return CardType.Unspecified;
+                return CardFamily.Unspecified;
         }
     }
 
@@ -193,28 +205,28 @@ public struct CardStruct {
     /// </summary>
     /// <param name="ctype">Card type</param>
     /// <returns>Default Secondary strength of ctype</returns>
-    CardType defaultStrengthS(CardType ctype) {
+    CardFamily defaultStrengthS(CardFamily ctype) {
         switch (ctype) {
-            case CardType.Reptile:
-                return CardType.Plant;
-            case CardType.Insect:
-                return CardType.Fungus;
-            case CardType.Avian:
-                return CardType.Aquatic;
-            case CardType.Mammal:
-                return CardType.Reptile;
-            case CardType.Aquatic:
-                return CardType.Insect;
-            case CardType.Plant:
-                return CardType.Mammal;
-            case CardType.Fungus:
-                return CardType.Avian;
+            case CardFamily.Reptile:
+                return CardFamily.Plant;
+            case CardFamily.Insect:
+                return CardFamily.Fungus;
+            case CardFamily.Avian:
+                return CardFamily.Aquatic;
+            case CardFamily.Mammal:
+                return CardFamily.Reptile;
+            case CardFamily.Aquatic:
+                return CardFamily.Insect;
+            case CardFamily.Plant:
+                return CardFamily.Mammal;
+            case CardFamily.Fungus:
+                return CardFamily.Avian;
             default:
-                return CardType.Unspecified;
+                return CardFamily.Unspecified;
         }
     }
 
     public override string ToString() {
-        return determineCard(type);
+        return determineCard(family);
     }
 }

@@ -18,8 +18,8 @@ public class BoardScript : NetworkBehaviour {
 
     void UpdateCard(GameObject cardObject, Cards hand, int handIndex) {
         Card card = cardObject.GetComponent<Card>();
-        if (card.type != hand.GetItem(handIndex).type) {
-            card.type = hand.GetItem(handIndex).type;
+        if (card.type != hand.GetItem(handIndex).family) {
+            card.type = hand.GetItem(handIndex).family;
             cardObject.GetComponent<MeshRenderer>().material = Resources.Load<Material>("Textures/" + CardStruct.determineCard(card.type).ToUpper());
         }
         if (!card.dead && hand.GetItem(handIndex).destroyed) {
@@ -40,7 +40,7 @@ public class BoardScript : NetworkBehaviour {
                 GameObject go = Instantiate(Resources.Load("Prefabs/Card"), p1Cards[i].transform.position, p1Cards[i].transform.rotation) as GameObject;
                 go.GetComponent<Card>().SetReference(p1, i);
                 go.GetComponent<Card>().interaction = Card.Interaction.Select;
-                go.GetComponent<Card>().rotation = Quaternion.identity;
+                go.GetComponent<Card>().SetRotation(Quaternion.identity);
                 go.transform.position += new Vector3(0, 0, -1);
                 NetworkServer.Spawn(go);
             }
@@ -48,7 +48,7 @@ public class BoardScript : NetworkBehaviour {
                 GameObject go = Instantiate(Resources.Load("Prefabs/Card"), p2Cards[i].transform.position, p2Cards[i].transform.rotation) as GameObject;
                 go.GetComponent<Card>().SetReference(p2, i);
                 go.GetComponent<Card>().interaction = Card.Interaction.Select;
-                go.GetComponent<Card>().rotation = Quaternion.Euler(new Vector3(0, 180, 0));
+                go.GetComponent<Card>().SetRotation(Quaternion.Euler(0, 180, 0));
                 go.transform.position += new Vector3(0, 0, -1);
                 NetworkServer.Spawn(go);
             }
