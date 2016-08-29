@@ -9,6 +9,13 @@ public class GameMaster : NetworkBehaviour {
     Cards p1 = new Cards(7);
     Cards p2 = new Cards(7);
 
+    [SyncVar]
+    public Phase currentPhase;
+
+    public enum Phase {
+        Startup, Mulligan, PrimaryMatchup, SecondaryMatchup, BonusMatchup, Cleanup
+    }
+
     public int mulliganCardCount = 3;
     /// <summary>
     /// 2 Players
@@ -19,8 +26,8 @@ public class GameMaster : NetworkBehaviour {
     /// </summary>
     // Use this for initialization
     void Start () {
-	    
-	}
+        currentPhase = Phase.Startup;
+    }
 	
 	// Update is called once per frame
 	void Update () {
@@ -35,6 +42,7 @@ public class GameMaster : NetworkBehaviour {
         print("Deck matchup: ");
         printState(p1Hand, p2Hand);
         #region Primary Matchup
+        currentPhase = Phase.PrimaryMatchup;
         int[] p1Primary = strengthArray(p1Hand);
         int[] p2Primary = strengthArray(p2Hand);
 
@@ -45,6 +53,7 @@ public class GameMaster : NetworkBehaviour {
         printState(p1Hand, p2Hand);
 
         #region Secondary Matchup
+        currentPhase = Phase.SecondaryMatchup;
         int[] p1Secondary = strengthArray(p1Hand, false);
         int[] p2Secondary = strengthArray(p2Hand, false);
 

@@ -63,7 +63,7 @@ public class Player : NetworkBehaviour {
                 CmdMulliganCard(card.ToCardStruct(), false);
                 mulligan--;
                 MulliganButton.interactable = true;
-            } else {
+            } else if (card.selected == true) {
                 card.selected = false;
                 CmdMulliganCard(card.ToCardStruct(), true);
                 mulligan++;
