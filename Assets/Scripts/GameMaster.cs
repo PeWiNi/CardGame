@@ -8,6 +8,8 @@ public class GameMaster : NetworkBehaviour {
 
     Cards p1 = new Cards(7);
     Cards p2 = new Cards(7);
+
+    public int mulliganCardCount = 3;
     /// <summary>
     /// 2 Players
     /// Each with a Deck of 15 Cards
@@ -94,6 +96,7 @@ public class GameMaster : NetworkBehaviour {
     }
 
     #region Simulation functions
+
     public void DrawCards() {
         if(!GameBoard) {
             GameBoard = FindObjectOfType<BoardScript>();
@@ -114,6 +117,7 @@ public class GameMaster : NetworkBehaviour {
         }
         // ToDo: mulligan before updating art (at least for both players)
         StartCoroutine(UpdateArt());
+        MulliganPhase(true);
     }
 
     private void DrawCards(Player player) {
@@ -145,7 +149,64 @@ public class GameMaster : NetworkBehaviour {
         player.ActiveCards.Renew(temp);
     }
 
+    public void MulliganPhase(bool start) {
+        foreach (GameObject pl in GameObject.FindGameObjectsWithTag("Player")) {
+            if (start) {
+                pl.GetComponent<Player>().SetUpMulligan(mulliganCardCount);
+            }
+            else {
+                pl.GetComponent<Player>().StopMulligan();
+                StartCoroutine(UpdateArt());
+            }
+        }
+    }
+
+    /// <summary>
+    /// Method for populating the ActiveCards (hand) of a given player
+    /// It creates a placeholder list for all the available cards (Deck - ActiveCards - Graveyard)
+    /// Checks if more cards are mulligan'ed than available (and then repopulates the placeholder list with mulligan'ed cards)
+    /// Fills up ActiveCards (hand) of the player
+    /// </summary>
+    /// <param name="player">Player who mulligan'ed</param>
+    public void Mulligan(Player player) {
+        List<CardStruct> handiez = new List<CardStruct>(15);
+        foreach (CardStruct c in player.Deck) { // Populate the list with the full deck
+            handiez.Add(c);
+            print("Adding : Handiez contains #" + handiez.Count + " cards");
+        } foreach (CardStruct c in player.ActiveCards) { // Remove the current hand (so the cards won't get re-added when mulligan'ing)
+            handiez.Remove(c);
+            print("Removing (ActiveCards) : Handiez contains #" + handiez.Count + " cards");
+        } foreach (CardStruct c in player.Graveyard) { // Remove the dead cards
+            CardStruct cs = c;
+            cs.destroyed = false;
+            handiez.Remove(cs);
+            print("Removing (Graveyard) : Handiez contains #" + handiez.Count + " cards");
+        }
+        print("Handiez contains #" + handiez.Count + " cards");
+        foreach (CardStruct c in player.Mulligan) { // Remove the mulligan'ed cards from the hand
+            player.ActiveCards.Remove(c);
+        }
+        print("ActiveHands trimmed: " + player.ActiveCards.Count + ", Mulligan'ed cards: " + player.Mulligan.Count + ", the sum of the two should be 7 (or maximum available cards)");
+        if (handiez.Count < player.Mulligan.Count) { // Add cards from the list only containing unused and alive cards from the Deck
+            foreach (CardStruct c in player.Mulligan) {
+                handiez.Add(c);
+            }
+        } if (handiez.Count > 0) { // Add mulligan'ed cards to the list, since more cards were mulligan'ed than left in the list
+            for (int i = 0; i < player.Mulligan.Count; i++) {
+                player.ActiveCards.AddCard(handiez[i]);
+            }
+        }
+        print("ActiveHands is full again " + player.ActiveCards.Count);
+        player.Mulligan.Clear(); ;
+        StartCoroutine(UpdateArt());
+    }
+
+    /// <summary>
+    /// Simulation function
+    /// Pits the ActiveCards of players in the scene against one another using Matchup(Cards, Cards)
+    /// </summary>
     public void MatchupCurrent() {
+        MulliganPhase(false);
         GameObject[] go = GameObject.FindGameObjectsWithTag("Player");
         Cards[] playerCards = new Cards[go.Length];
         for (int i = 0; i < go.Length; i++)
@@ -167,6 +228,14 @@ public class GameMaster : NetworkBehaviour {
         GameBoard.UpdateHandCards(players[0], players[1]);
     }
 
+    /// <summary>
+    /// Switch-statement for determining what cards must die in the hand
+    /// Works by matching a int-array that can be mapped to every CardFamily
+    /// This int-array will have a number that determines how many cards of a family that should be destroyed
+    /// </summary>
+    /// <param name="hand">The victim who will loose cards determined by opponentsStrengths</param>
+    /// <param name="opponentStrengths">The CardFamilies and count for what needs to be killed</param>
+    /// <returns></returns>
     List<CardStruct> killStuff(Cards hand, int[] opponentStrengths) {
         List<CardStruct> handiez = new List<CardStruct>(15);
         // In the future we might want to take every card 1 by 1 to make animations 'n' such

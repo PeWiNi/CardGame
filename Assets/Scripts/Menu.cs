@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
+using UnityEngine.UI;
 
 public class Menu : MonoBehaviour {
     //[SerializeField]
@@ -99,6 +100,9 @@ public class Menu : MonoBehaviour {
                         AddCard(card);
                     if (card.interaction == Card.Interaction.Remove)
                         RemoveCard(card);
+                    if (card.interaction == Card.Interaction.Select) {
+                        card.owner.GetComponent<Player>().AddMulligan(card);
+                    }
                     print(CardStruct.determineCard(card.type));
                 } catch { print("Not a card.."); };
             }

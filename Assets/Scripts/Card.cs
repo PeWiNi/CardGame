@@ -18,8 +18,11 @@ public class Card : NetworkBehaviour {
     Quaternion rotation = Quaternion.Euler(0, 180, 0);
     #endregion
 
+    [SyncVar]
     public Interaction interaction = Interaction.Unspecified;
+    public int generation = 0;
     public bool dead = false;
+    public bool selected = false;
 
     public enum Interaction {
         Select, Add, Remove, Unspecified
@@ -44,7 +47,7 @@ public class Card : NetworkBehaviour {
                 }
                 if (type != list.GetItem(listIndex).family) {
                     type = list.GetItem(listIndex).family;
-                    gameObject.GetComponent<MeshRenderer>().material = Resources.Load<Material>("Textures/" + CardStruct.determineCard(type).ToUpper());
+                    gameObject.GetComponent<MeshRenderer>().material = Resources.Load<Material>("Materials/" + CardStruct.determineCard(type).ToUpper());
                 }
                 if (!dead && list.GetItem(listIndex).destroyed) {
                     gameObject.GetComponent<MeshRenderer>().material.color -= new Color(0, 1, 1, .5f);
@@ -53,6 +56,11 @@ public class Card : NetworkBehaviour {
                 if (dead && !list.GetItem(listIndex).destroyed) {
                     //gameObject.GetComponent<MeshRenderer>().material.color += new Color(0, 1, 1, .5f);
                     dead = false;
+                }
+                if(selected) {
+                    gameObject.GetComponent<MeshRenderer>().material.color = new Color(0, 1, 0, 1);
+                } if(gameObject.GetComponent<MeshRenderer>().material.color == new Color(0, 1, 0, 1) && !selected) {
+                    gameObject.GetComponent<MeshRenderer>().material.color = new Color(1, 1, 1, 1);
                 }
             }
         }
@@ -63,7 +71,7 @@ public class Card : NetworkBehaviour {
         Player ply = owner.GetComponent<Player>();
         listIndex = index;
         type = ply.ActiveCards.GetItem(listIndex).family;
-        gameObject.GetComponent<MeshRenderer>().material = Resources.Load<Material>("Textures/" + CardStruct.determineCard(type).ToUpper());
+        gameObject.GetComponent<MeshRenderer>().material = Resources.Load<Material>("Materials/" + CardStruct.determineCard(type).ToUpper());
     }
 
     public void SetRotation(Quaternion rotation) {

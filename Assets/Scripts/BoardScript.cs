@@ -7,6 +7,8 @@ public class BoardScript : NetworkBehaviour {
     public GameObject p1HandArea;
     public GameObject p2HandArea;
 
+    int drawIteration = 1;
+
     // Use this for initialization
     void Start () {
 	
@@ -31,7 +33,7 @@ public class BoardScript : NetworkBehaviour {
         }
     }
 
-    public void UpdateHandCards(GameObject p1, GameObject p2) {
+    public void UpdateHandCards(GameObject p1, GameObject p2) { // TODO: Enable selective drawing (based on player) and rotate according to player (current: p1 top, p2: bottom)
         Card[] p1Cards = p1HandArea.GetComponentsInChildren<Card>();
         Card[] p2Cards = p2HandArea.GetComponentsInChildren<Card>();
 
@@ -41,6 +43,7 @@ public class BoardScript : NetworkBehaviour {
                 go.GetComponent<Card>().SetReference(p1, i);
                 go.GetComponent<Card>().interaction = Card.Interaction.Select;
                 go.GetComponent<Card>().SetRotation(Quaternion.identity);
+                go.GetComponent<Card>().generation = drawIteration;
                 go.transform.position += new Vector3(0, 0, -1);
                 NetworkServer.Spawn(go);
             }
@@ -49,9 +52,15 @@ public class BoardScript : NetworkBehaviour {
                 go.GetComponent<Card>().SetReference(p2, i);
                 go.GetComponent<Card>().interaction = Card.Interaction.Select;
                 go.GetComponent<Card>().SetRotation(Quaternion.Euler(0, 180, 0));
+                go.GetComponent<Card>().generation = drawIteration;
                 go.transform.position += new Vector3(0, 0, -1);
                 NetworkServer.Spawn(go);
             }
         }
+        foreach (Card c in FindObjectsOfType<Card>()) {
+            if (c.generation != drawIteration && c.generation != 0)
+                Destroy(c.gameObject);
+        }
+        drawIteration++;
     }
 }
