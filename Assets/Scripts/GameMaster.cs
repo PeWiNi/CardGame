@@ -9,11 +9,8 @@ public class GameMaster : NetworkBehaviour {
     Cards p1 = new Cards(7);
     Cards p2 = new Cards(7);
 
-    [SyncVar]
-    public Phase currentPhase;
-
     public enum Phase {
-        Startup, Mulligan, PrimaryMatchup, SecondaryMatchup, BonusMatchup, Cleanup
+        Startup, Mulligan, Ready, PrimaryMatchup, SecondaryMatchup, BonusMatchup, Aftermath
     }
 
     public int mulliganCardCount = 3;
@@ -26,7 +23,8 @@ public class GameMaster : NetworkBehaviour {
     /// </summary>
     // Use this for initialization
     void Start () {
-        currentPhase = Phase.Startup;
+        foreach (GameObject p in GameObject.FindGameObjectsWithTag("Player"))
+            p.GetComponent<Events>().SendPhaseChange(Phase.Startup);
     }
 	
 	// Update is called once per frame
@@ -42,7 +40,7 @@ public class GameMaster : NetworkBehaviour {
         print("Deck matchup: ");
         printState(p1Hand, p2Hand);
         #region Primary Matchup
-        currentPhase = Phase.PrimaryMatchup;
+        //foreach (GameObject p in GameObject.FindGameObjectsWithTag("Player")) p.GetComponent<Events>().SendPhaseChange(Phase.PrimaryMatchup);
         int[] p1Primary = strengthArray(p1Hand);
         int[] p2Primary = strengthArray(p2Hand);
 
@@ -53,7 +51,7 @@ public class GameMaster : NetworkBehaviour {
         printState(p1Hand, p2Hand);
 
         #region Secondary Matchup
-        currentPhase = Phase.SecondaryMatchup;
+        //foreach (GameObject p in GameObject.FindGameObjectsWithTag("Player")) p.GetComponent<Events>().SendPhaseChange(Phase.SecondaryMatchup);
         int[] p1Secondary = strengthArray(p1Hand, false);
         int[] p2Secondary = strengthArray(p2Hand, false);
 
@@ -62,6 +60,9 @@ public class GameMaster : NetworkBehaviour {
         #endregion
         print("Secondary matchup: ");
         printState(p1Hand, p2Hand);
+
+        foreach (GameObject p in GameObject.FindGameObjectsWithTag("Player"))
+            p.GetComponent<Events>().SendPhaseChange(Phase.Aftermath);
     }
 
     void printState(Cards deck1, Cards deck2) {
@@ -160,6 +161,7 @@ public class GameMaster : NetworkBehaviour {
 
     public void MulliganPhase(bool start) {
         foreach (GameObject pl in GameObject.FindGameObjectsWithTag("Player")) {
+            pl.GetComponent<Events>().SendPhaseChange(Phase.Mulligan);
             if (start) {
                 pl.GetComponent<Player>().SetUpMulligan(mulliganCardCount);
             }
@@ -181,17 +183,18 @@ public class GameMaster : NetworkBehaviour {
         List<CardStruct> handiez = new List<CardStruct>(15);
         foreach (CardStruct c in player.Deck) { // Populate the list with the full deck
             handiez.Add(c);
-            print("Adding : Handiez contains #" + handiez.Count + " cards");
+            //print("Adding : Handiez contains #" + handiez.Count + " cards");
         } foreach (CardStruct c in player.ActiveCards) { // Remove the current hand (so the cards won't get re-added when mulligan'ing)
             handiez.Remove(c);
-            print("Removing (ActiveCards) : Handiez contains #" + handiez.Count + " cards");
+            //print("Removing (ActiveCards) : Handiez contains #" + handiez.Count + " cards");
         } foreach (CardStruct c in player.Graveyard) { // Remove the dead cards
             CardStruct cs = c;
             cs.destroyed = false;
             handiez.Remove(cs);
-            print("Removing (Graveyard) : Handiez contains #" + handiez.Count + " cards");
+            //print("Removing (Graveyard) : Handiez contains #" + handiez.Count + " cards");
         }
-        print("Handiez contains #" + handiez.Count + " cards");
+        print("There are #" + handiez.Count + " cards available for mulligan, they are " + printList(handiez));
+        print("Hand before Mulligan: " + player.ActiveCards.ToString() + ", Cards Mulligan'ed: " + player.Mulligan);
         foreach (CardStruct c in player.Mulligan) { // Remove the mulligan'ed cards from the hand
             player.ActiveCards.Remove(c);
         }
@@ -206,8 +209,18 @@ public class GameMaster : NetworkBehaviour {
             }
         }
         print("ActiveHands is full again " + player.ActiveCards.Count);
-        player.Mulligan.Clear(); ;
+        print("Hand after Mulligan: " + player.ActiveCards.ToString() + ", Cards Mulligan'ed: " + player.Mulligan);
+        player.Mulligan.Clear();
+        player.GetComponent<Events>().SendPhaseChange(Phase.Ready);
         StartCoroutine(UpdateArt());
+    }
+
+    string printList(List<CardStruct> list) {
+        string s = "";
+        foreach (CardStruct c in list) {
+            s += "[" + c.ToString() + "] ";
+        }
+        return s;
     }
 
     /// <summary>
@@ -228,8 +241,8 @@ public class GameMaster : NetworkBehaviour {
     /// Refresh p1 and p2 for the sake of updating the cards on the table
     /// </summary>
     IEnumerator UpdateArt() {
-        yield return new WaitForSeconds(1);
-        print("1 sec has passed and UpdateArt can proceed");
+        yield return new WaitForSeconds(.1f);
+        print(".1 sec has passed and UpdateArt can proceed");
         GameObject[] players = GameObject.FindGameObjectsWithTag("Player");
         p1 = players[0].GetComponent<Player>().ActiveCards;
         p2 = players[1].GetComponent<Player>().ActiveCards;

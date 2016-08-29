@@ -13,8 +13,8 @@ public class PlayerMockup : NetworkBehaviour {
 
     }
     public void AddCard(Card card) { // For 3D
-        if (Check(card.type, deck1) &&  player1) deck1.Add(new CardStruct(card.type));
-        if (Check(card.type, deck2) && !player1) deck2.Add(new CardStruct(card.type));
+        if (Check(CardStruct.determineCard(card.cardEntry), deck1) &&  player1) deck1.Add(new CardStruct(CardStruct.determineCard(card.cardEntry)));
+        if (Check(CardStruct.determineCard(card.cardEntry), deck2) && !player1) deck2.Add(new CardStruct(CardStruct.determineCard(card.cardEntry)));
     }
 
     public void SetPlayer(bool p1) {

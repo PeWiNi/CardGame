@@ -25,7 +25,7 @@ public class Cards : SyncListStruct<CardStruct> {
     public override string ToString() {
         string s = "";
         foreach(CardStruct c in this) {
-            s += "[" + CardStruct.determineCard(c.family) + "] ";
+            s += "[" + c.ToString() + "] ";
         }
         return s;
     }
@@ -33,7 +33,7 @@ public class Cards : SyncListStruct<CardStruct> {
     public string ActiveCards() {
         string s = "";
         foreach (CardStruct c in this) {
-            s += "[" + (c.destroyed ?  " " : CardStruct.determineCard(c.family)) + "] ";
+            s += "[" + (c.destroyed ?  " " : c.ToString()) + "] ";
         }
         return s;
     }
@@ -41,7 +41,7 @@ public class Cards : SyncListStruct<CardStruct> {
 
 public struct CardStruct { 
     public CardFamily family;
-    public int type;
+    public int dataEntry;
     public bool destroyed;
     public CardFamily strengthPrimary;
     public CardFamily strengthSecondary;
@@ -98,7 +98,28 @@ public struct CardStruct {
         }
     }
 
-    public static string determineCard(CardFamily s) {
+    public static int determineCard(CardFamily s) {
+        switch (s) {
+            case CardFamily.Reptile:
+                return 25;
+            case CardFamily.Insect:
+                return 17;
+            case CardFamily.Avian:
+                return 41;
+            case CardFamily.Mammal:
+                return 49;
+            case CardFamily.Aquatic:
+                return 33;
+            case CardFamily.Plant:
+                return 9;
+            case CardFamily.Fungus:
+                return 1;
+            default:
+                return 0;
+        }
+    }
+
+    public static string typeToString(CardFamily s) {
         switch (s) {
             case CardFamily.Reptile:
                 return "Reptile";
@@ -115,7 +136,84 @@ public struct CardStruct {
             case CardFamily.Fungus:
                 return "Fungus";
             default:
-                return "Unknown";
+                return "Backside";
+        }
+    }
+
+    /// <summary>
+    /// Data fetched from design dokument (29/08/2016 12:18)
+    /// https://docs.google.com/document/d/11zGSpZZbW72u2k0DGqssqfsTA2DEX0JAsIaGNO1bgRw/edit#
+    /// </summary>
+    /// <param name="s"></param>
+    /// <returns></returns>
+    public static CardFamily determineCard(int s) {
+        switch (s) {
+            case 25: // Salamander (Uncommon)
+            case 26: // House Snake (Common)
+            case 27: // Chameleon (Uncommon)
+            case 28: // Turtle (Common)
+            case 29: // Frog (Common)
+            case 30: // Komodo Dragon (Rare,Epic,Legendary)
+            case 31: // Cobra (Rare,Epic,Legendary)
+            case 32: // Crocodile (Rare,Epic,Legendary)
+                return CardFamily.Reptile;
+            case 17: // Ladybug (Common)
+            case 18: // Butterfly (Common)
+            case 19: // Bee (Common)
+            case 20: // Stag Beetle (Uncommon)
+            case 21: // Ant (Uncommon)
+            case 22: // Mantis (Rare,Epic,Legendary)
+            case 23: // Dragonfly (Rare,Epic,Legendary)
+            case 24: // Firefly (Rare,Epic,Legendary)
+                return CardFamily.Insect;
+            case 41: // Turkey (Common)
+            case 42: // Sparrow (Common)
+            case 43: // Crow (Uncommon)
+            case 44: // Pigeon (Common)
+            case 45: // Seagull (Uncommon)
+            case 46: // Penguin
+            case 47: // Eagle
+            case 48: // Toucan
+                return CardFamily.Avian;
+            case 49: // Cow (Common)
+            case 50: // Dog/Wolf (Uncommon)
+            case 51: // Squirrel (Common)
+            case 52: // Bear (Uncommon)
+            case 53: // Moose (Common)
+            case 54: // Platypus (Rare,Epic,Legendary)
+            case 55: // Monkey (Rare,Epic,Legendary)
+            case 56: // Honey Badger (Rare,Epic,Legendary)
+                return CardFamily.Mammal;
+            case 33: // Clown Fish (Common)
+            case 34: // Puffer Fish (Common)
+            case 35: // Starfish (Uncommon)
+            case 36: // Seahorse (Uncommon)
+            case 37: // Whale (Common)
+            case 38: // Shark (Rare,Epic,Legendary)
+            case 39: // Narwhal (Rare,Epic,Legendary)
+            case 40: // Dolphin (Rare,Epic,Legendary)
+                return CardFamily.Aquatic;
+            case 9: // Oak Tree (Common)
+            case 10: // Sunflower (Common)
+            case 11: // Cactus (Uncommon)
+            case 12: // Pine Tree (Uncommon)
+            case 13: // Fern (Common)
+            case 14: // Algae (Rare,Epic,Legendary)
+            case 15: // Flytrap (Rare,Epic,Legendary)
+            case 16: // Mistletoe (Rare,Epic,Legendary)
+                return CardFamily.Plant; 
+            case 1: // Mushroom (Common)
+            case 2: // Lichen (Uncommon)
+            case 3: // Spore (Uncommon)
+            case 4: // Truffle (Rare,Epic,Legendary)
+            case 5: // Yeast (Common)
+            case 6: // Coral (Rare,Epic,Legendary)
+            case 7: // Mold (Common)
+            case 8: // Puffball (Rare,Epic,Legendary)
+                return CardFamily.Fungus;
+            case 0:
+            default:
+                return CardFamily.Unspecified;
         }
     }
 
@@ -125,12 +223,13 @@ public struct CardStruct {
     /// <param name="myFamily">Card family type</param>
     public CardStruct(CardFamily myFamily) {
         family = myFamily;
-        type = 0;
+        dataEntry = 0;
         destroyed = false;
         strengthPrimary = CardFamily.Unspecified;
         strengthSecondary = CardFamily.Unspecified;
         rarity = Rarity.Unspecified;
 
+        dataEntry = determineCard(myFamily);
         // Apply default strengths
         strengthPrimary = defaultStrengthP(myFamily);
         strengthSecondary = defaultStrengthS(myFamily);
@@ -142,12 +241,13 @@ public struct CardStruct {
     /// <param name="myFamily">Card family type</param>
     /// <param name="strengths">List of strengths (Primary@[0], Secondary@[1])</param>
     public CardStruct(CardFamily myFamily, CardFamily[] strengths) {
-        this.family = myFamily;
-        type = 0;
+        family = myFamily;
+        dataEntry = 0;
         destroyed = false;
         strengthPrimary = strengths[0];
         rarity = Rarity.Unspecified;
 
+        dataEntry = determineCard(myFamily);
         if (strengths.Length > 1)
             strengthSecondary = strengths[0];
         else
@@ -157,7 +257,7 @@ public struct CardStruct {
 
     public CardStruct(CardStruct cs) {
         family = cs.family;
-        type = cs.type;
+        dataEntry = cs.dataEntry;
         destroyed = cs.destroyed;
         strengthPrimary = cs.strengthPrimary;
         strengthSecondary = cs.strengthSecondary;
@@ -227,6 +327,23 @@ public struct CardStruct {
     }
 
     public override string ToString() {
-        return determineCard(family);
+        switch (family) {
+            case CardFamily.Reptile:
+                return "Reptile";
+            case CardFamily.Insect:
+                return "Insect";
+            case CardFamily.Avian:
+                return "Avian";
+            case CardFamily.Mammal:
+                return "Mammal";
+            case CardFamily.Aquatic:
+                return "Aquatic";
+            case CardFamily.Plant:
+                return "Plant";
+            case CardFamily.Fungus:
+                return "Fungus";
+            default:
+                return "Unknown";
+        }
     }
 }

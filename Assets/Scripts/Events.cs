@@ -12,22 +12,23 @@ public class Events : NetworkBehaviour {
     [SyncEvent]
     public event UpdateCards EventUpdateCards;
 
-    public delegate void EndMulligan();
+    public delegate void PhaseChange(GameMaster.Phase phase);
     [SyncEvent]
-    public event EndMulligan EventEndMulligan;
+    public event PhaseChange EventPhaseChange;
 
-    public void SendMulligan(List<CardStruct> cards) {
+    public void SendMulligan(List<CardStruct> cards) { // Unused, happens through GameMaster and a integer value on Player
         if (EventMulligan != null)
             EventMulligan(cards);
     }
 
-    public void SendEndMulligan() {
-        if (EventEndMulligan != null)
-            EventEndMulligan();
-    }
-
-    public void SendUpdateCards(Player p1, Player p2) {
+    public void SendUpdateCards(Player p1, Player p2) { // Unused, GameMaster controls when (and what) cards are drawn and the SyncListStruct handles the rest
         if (EventUpdateCards != null)
             EventUpdateCards(p1, p2);
+    }
+
+    // Used to change the state for players (namely whether or not they can see the opponent's cards (Mulligan))
+    public void SendPhaseChange(GameMaster.Phase phase) {
+        if (EventPhaseChange != null)
+            EventPhaseChange(phase);
     }
 }

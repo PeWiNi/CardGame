@@ -19,11 +19,17 @@ public class Player : NetworkBehaviour {
 
     public Button MulliganButton;
 
+    [SyncVar]
+    public GameMaster.Phase currentPhase = GameMaster.Phase.Startup;
+
     // Use this for initialization
     void Start () {
         
         if (isLocalPlayer) {
             Menu menu = GameObject.Find("NetworkManager").GetComponent<Menu>();
+            GameObject[] players = GameObject.FindGameObjectsWithTag("Player");
+            if (players.Length < 2)
+                FindObjectOfType<Camera>().transform.Rotate(0, 0, 180);
             setupDeck(menu.GetDeck());
             MulliganButton.gameObject.SetActive(true);
             MulliganButton.interactable = false;
@@ -49,7 +55,6 @@ public class Player : NetworkBehaviour {
     //GameMaster function : end the mulligan
     public void StopMulligan() {
         mulligan = 0;
-        GetComponent<Events>().SendEndMulligan();
     }
 
     /// <summary>
@@ -101,14 +106,14 @@ public class Player : NetworkBehaviour {
         FindObjectOfType<GameMaster>().Mulligan(this);
     }
 
-    void EndMulligan() { // Unused
-        // Set all cards to not-selected
+    void PhaseChange(GameMaster.Phase newPhase) {
+        currentPhase = newPhase;
     }
 
     void OnEnable() {
-        GetComponent<Events>().EventEndMulligan += EndMulligan;
+        GetComponent<Events>().EventPhaseChange += PhaseChange;
     }
     void OnDisable() {
-        GetComponent<Events>().EventEndMulligan -= EndMulligan;
+        GetComponent<Events>().EventPhaseChange -= PhaseChange;
     }
 }

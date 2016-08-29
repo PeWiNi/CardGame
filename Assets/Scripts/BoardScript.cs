@@ -20,9 +20,9 @@ public class BoardScript : NetworkBehaviour {
 
     void UpdateCard(GameObject cardObject, Cards hand, int handIndex) {
         Card card = cardObject.GetComponent<Card>();
-        if (card.type != hand.GetItem(handIndex).family) {
-            card.type = hand.GetItem(handIndex).family;
-            cardObject.GetComponent<MeshRenderer>().material = Resources.Load<Material>("Textures/" + CardStruct.determineCard(card.type).ToUpper());
+        if (card.cardEntry != hand.GetItem(handIndex).dataEntry) {
+            card.cardEntry = hand.GetItem(handIndex).dataEntry;
+            cardObject.GetComponent<MeshRenderer>().material = Resources.Load<Material>("Textures/" + CardStruct.typeToString(CardStruct.determineCard(card.cardEntry)).ToUpper());
         }
         if (!card.dead && hand.GetItem(handIndex).destroyed) {
             gameObject.GetComponent<MeshRenderer>().material.color -= new Color(0, 1, 1, .5f);

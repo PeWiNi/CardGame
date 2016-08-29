@@ -29,12 +29,12 @@ public class Menu : MonoBehaviour {
     }
 
     public void AddCard(Card card) { // For 3D
-        if (Check(card.type)) {
-            deck.Add(card.type);
+        if (Check(card.cardEntry)) {
+            deck.Add(CardStruct.determineCard(card.cardEntry));
             if (slot) {
                 float size = slot.GetComponentsInChildren<Card>().Length;
                 GameObject go = Resources.Load<GameObject>("Prefabs/Card");
-                go.GetComponent<Card>().type = card.type;
+                go.GetComponent<Card>().cardEntry = card.cardEntry;
                 //go.GetComponent<Card>().SetCardStruct(card.ToCardStruct());
                 go.GetComponent<Card>().interaction = Card.Interaction.Remove;
                 Instantiate(go, new Vector3(slot.transform.position.x + (0.85f * size), slot.transform.position.y, slot.transform.position.z + (-0.01f * size)), Quaternion.Euler(0, 180, 0), slot.transform);
@@ -43,11 +43,11 @@ public class Menu : MonoBehaviour {
     }
 
     public void RemoveCard(Card card) {
-        deck.Remove(card.type);
+        deck.Remove(CardStruct.determineCard(card.cardEntry));
         bool killed = false;
         if (slot) {
             foreach (Card c in slot.GetComponentsInChildren<Card>()) {
-                if (c.type == card.type && !killed) {
+                if (c.cardEntry == card.cardEntry && !killed) {
                     Destroy(c.gameObject);
                     killed = true;
                     continue;
@@ -69,6 +69,10 @@ public class Menu : MonoBehaviour {
                 occurances++;
         }
         return occurances < 3 && deck.Count < 15;
+    }
+
+    bool Check(int card) {
+        return Check(CardStruct.determineCard(card));
     }
 
     void Update() {
@@ -103,7 +107,7 @@ public class Menu : MonoBehaviour {
                     if (card.interaction == Card.Interaction.Select) {
                         card.owner.GetComponent<Player>().AddMulligan(card);
                     }
-                    print(CardStruct.determineCard(card.type));
+                    print(CardStruct.determineCard(card.cardEntry));
                 } catch { print("Not a card.."); };
             }
         }
