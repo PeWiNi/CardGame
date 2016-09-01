@@ -42,9 +42,9 @@ public class BoardScript : NetworkBehaviour {
                 GameObject go = Instantiate(Resources.Load("Prefabs/Card"), p1Cards[i].transform.position, p1Cards[i].transform.rotation) as GameObject;
                 go.GetComponent<Card>().SetReference(p1, i);
                 go.GetComponent<Card>().interaction = Card.Interaction.Select;
-                go.GetComponent<Card>().SetRotation(Quaternion.identity);
+                go.GetComponent<Card>().SetRotation(Quaternion.Euler(0, 180, 180));
                 go.GetComponent<Card>().generation = drawIteration;
-                go.transform.position += new Vector3(0, 0, -1);
+                go.transform.position += new Vector3(0, 3, -1);
                 NetworkServer.Spawn(go);
             }
             if (p2.GetComponent<Player>().ActiveCards.Count > i) {
