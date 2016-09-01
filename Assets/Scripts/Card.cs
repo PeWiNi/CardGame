@@ -29,8 +29,7 @@ public class Card : NetworkBehaviour {
     public bool dead = false;
     // Card was clicked through Menu.cs
     public bool selected = false;
-    // Opponent knows card, no reason to hide it anymore
-    public bool revealed = false; // Not yet implemented
+    // Opponent knows card, no reason to hide it anymore (also for the sake of not being able to mulligan this card)
 
     public enum Interaction {
         Select, Add, Remove, Unspecified
@@ -53,13 +52,14 @@ public class Card : NetworkBehaviour {
                     gameObject.SetActive(false);
                     return;
                 }
+                #region Mulligan
                 if(owner.GetComponent<Player>().currentPhase == GameMaster.Phase.Mulligan || owner.GetComponent<Player>().currentPhase == GameMaster.Phase.Ready) {
                     bool bothReady = true;
                     foreach (GameObject pl in GameObject.FindGameObjectsWithTag("Player")) {
                         if (!bothReady || pl.GetComponent<Player>().currentPhase != GameMaster.Phase.Ready)
                             bothReady = false;
                     }
-                    if (owner.GetComponent<NetworkIdentity>().isLocalPlayer && !bothReady && cardEntry != list.GetItem(listIndex).dataEntry) {
+                    if ((owner.GetComponent<NetworkIdentity>().isLocalPlayer && !bothReady && cardEntry != list.GetItem(listIndex).dataEntry) || Revealed()) { // Maybe do something special to cards to indicate that the card is revealed (owner)
                         cardEntry = list.GetItem(listIndex).dataEntry;
                         gameObject.GetComponent<MeshRenderer>().material = Resources.Load<Material>("Materials/" + CardStruct.typeToString(CardStruct.determineCard(cardEntry)).ToUpper());
                         return;
@@ -68,10 +68,8 @@ public class Card : NetworkBehaviour {
                         gameObject.GetComponent<MeshRenderer>().material = Resources.Load<Material>("Materials/" + CardStruct.typeToString(CardStruct.determineCard(cardEntry)).ToUpper());
                         return;
                     }
-                    if (bothReady && !revealed) {
-                        revealed = true;
-                    }
                 }
+                #endregion
                 if (cardEntry != list.GetItem(listIndex).dataEntry) {
                     cardEntry = list.GetItem(listIndex).dataEntry;
                     gameObject.GetComponent<MeshRenderer>().material = Resources.Load<Material>("Materials/" + CardStruct.typeToString(CardStruct.determineCard(cardEntry)).ToUpper());
@@ -91,6 +89,10 @@ public class Card : NetworkBehaviour {
                 }
             }
         }
+    }
+
+    public bool Revealed() {
+        return owner.GetComponent<Player>().ActiveCards.GetItem(listIndex).revealed;
     }
 
     public void SetReference(GameObject player, int index) {

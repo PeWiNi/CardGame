@@ -43,6 +43,7 @@ public struct CardStruct {
     public CardFamily family;
     public int dataEntry;
     public bool destroyed;
+    public bool revealed;
     public CardFamily strengthPrimary;
     public CardFamily strengthSecondary;
     public Rarity rarity;
@@ -119,6 +120,11 @@ public struct CardStruct {
         }
     }
 
+    /// <summary>
+    /// Converts a Cardfamily to string (same functionality as .ToString())
+    /// </summary>
+    /// <param name="s"></param>
+    /// <returns></returns>
     public static string typeToString(CardFamily s) {
         switch (s) {
             case CardFamily.Reptile:
@@ -141,78 +147,87 @@ public struct CardStruct {
     }
 
     /// <summary>
+    /// Method mapping integers to Families(/Species)
+    /// 
     /// Data fetched from design dokument (29/08/2016 12:18)
     /// https://docs.google.com/document/d/11zGSpZZbW72u2k0DGqssqfsTA2DEX0JAsIaGNO1bgRw/edit#
     /// </summary>
-    /// <param name="s"></param>
-    /// <returns></returns>
-    public static CardFamily determineCard(int s) {
-        switch (s) {
-            case 25: // Salamander (Uncommon)
-            case 26: // House Snake (Common)
-            case 27: // Chameleon (Uncommon)
-            case 28: // Turtle (Common)
-            case 29: // Frog (Common)
-            case 30: // Komodo Dragon (Rare,Epic,Legendary)
-            case 31: // Cobra (Rare,Epic,Legendary)
-            case 32: // Crocodile (Rare,Epic,Legendary)
+    /// <param name="index">Identity of the card</param>
+    /// <returns>Family to which the index belong</returns>
+    public static CardFamily determineCard(int index) { // To be expanded to determining species
+        switch (index) {
+            case 25: goto case -1; // Salamander (Uncommon)
+            case 26: goto case -1; // House Snake (Common)
+            case 27: goto case -1; // Chameleon (Uncommon)
+            case 28: goto case -1; // Turtle (Common)
+            case 29: goto case -1; // Frog (Common)
+            case 30: goto case -1; // Komodo Dragon (Rare,Epic,Legendary)
+            case 31: goto case -1; // Cobra (Rare,Epic,Legendary)
+            case 32: goto case -1; // Crocodile (Rare,Epic,Legendary)
+            case -1:
                 return CardFamily.Reptile;
-            case 17: // Ladybug (Common)
-            case 18: // Butterfly (Common)
-            case 19: // Bee (Common)
-            case 20: // Stag Beetle (Uncommon)
-            case 21: // Ant (Uncommon)
-            case 22: // Mantis (Rare,Epic,Legendary)
-            case 23: // Dragonfly (Rare,Epic,Legendary)
-            case 24: // Firefly (Rare,Epic,Legendary)
+            case 17: goto case -2; // Ladybug (Common)
+            case 18: goto case -2; // Butterfly (Common)
+            case 19: goto case -2; // Bee (Common)
+            case 20: goto case -2; // Stag Beetle (Uncommon)
+            case 21: goto case -2; // Ant (Uncommon)
+            case 22: goto case -2; // Mantis (Rare,Epic,Legendary)
+            case 23: goto case -2; // Dragonfly (Rare,Epic,Legendary)
+            case 24: goto case -2; // Firefly (Rare,Epic,Legendary)
+            case -2:
                 return CardFamily.Insect;
-            case 41: // Turkey (Common)
-            case 42: // Sparrow (Common)
-            case 43: // Crow (Uncommon)
-            case 44: // Pigeon (Common)
-            case 45: // Seagull (Uncommon)
-            case 46: // Penguin
-            case 47: // Eagle
-            case 48: // Toucan
+            case 41: goto case -3; // Turkey (Common)
+            case 42: goto case -3; // Sparrow (Common)
+            case 43: goto case -3; // Crow (Uncommon)
+            case 44: goto case -3; // Pigeon (Common)
+            case 45: goto case -3; // Seagull (Uncommon)
+            case 46: goto case -3; // Penguin
+            case 47: goto case -3; // Eagle
+            case 48: goto case -3; // Toucan
+            case -3:
                 return CardFamily.Avian;
-            case 49: // Cow (Common)
-            case 50: // Dog/Wolf (Uncommon)
-            case 51: // Squirrel (Common)
-            case 52: // Bear (Uncommon)
-            case 53: // Moose (Common)
-            case 54: // Platypus (Rare,Epic,Legendary)
-            case 55: // Monkey (Rare,Epic,Legendary)
-            case 56: // Honey Badger (Rare,Epic,Legendary)
+            case 49: goto case -4; // Cow (Common)
+            case 50: goto case -4; // Dog/Wolf (Uncommon)
+            case 51: goto case -4; // Squirrel (Common)
+            case 52: goto case -4; // Bear (Uncommon)
+            case 53: goto case -4; // Moose (Common)
+            case 54: goto case -4; // Platypus (Rare,Epic,Legendary)
+            case 55: goto case -4; // Monkey (Rare,Epic,Legendary)
+            case 56: goto case -4; // Honey Badger (Rare,Epic,Legendary)
+            case -4:
                 return CardFamily.Mammal;
-            case 33: // Clown Fish (Common)
-            case 34: // Puffer Fish (Common)
-            case 35: // Starfish (Uncommon)
-            case 36: // Seahorse (Uncommon)
-            case 37: // Whale (Common)
-            case 38: // Shark (Rare,Epic,Legendary)
-            case 39: // Narwhal (Rare,Epic,Legendary)
-            case 40: // Dolphin (Rare,Epic,Legendary)
+            case 33: goto case -5; // Clown Fish (Common)
+            case 34: goto case -5; // Puffer Fish (Common)
+            case 35: goto case -5; // Starfish (Uncommon)
+            case 36: goto case -5; // Seahorse (Uncommon)
+            case 37: goto case -5; // Whale (Common)
+            case 38: goto case -5; // Shark (Rare,Epic,Legendary)
+            case 39: goto case -5; // Narwhal (Rare,Epic,Legendary)
+            case 40: goto case -5; // Dolphin (Rare,Epic,Legendary)
+            case -5:
                 return CardFamily.Aquatic;
-            case 9: // Oak Tree (Common)
-            case 10: // Sunflower (Common)
-            case 11: // Cactus (Uncommon)
-            case 12: // Pine Tree (Uncommon)
-            case 13: // Fern (Common)
-            case 14: // Algae (Rare,Epic,Legendary)
-            case 15: // Flytrap (Rare,Epic,Legendary)
-            case 16: // Mistletoe (Rare,Epic,Legendary)
+            case 09: goto case -6; // Oak Tree (Common)
+            case 10: goto case -6; // Sunflower (Common)
+            case 11: goto case -6; // Cactus (Uncommon)
+            case 12: goto case -6; // Pine Tree (Uncommon)
+            case 13: goto case -6; // Fern (Common)
+            case 14: goto case -6; // Algae (Rare,Epic,Legendary)
+            case 15: goto case -6; // Flytrap (Rare,Epic,Legendary)
+            case 16: goto case -6; // Mistletoe (Rare,Epic,Legendary)
+            case -6:
                 return CardFamily.Plant; 
-            case 1: // Mushroom (Common)
-            case 2: // Lichen (Uncommon)
-            case 3: // Spore (Uncommon)
-            case 4: // Truffle (Rare,Epic,Legendary)
-            case 5: // Yeast (Common)
-            case 6: // Coral (Rare,Epic,Legendary)
-            case 7: // Mold (Common)
-            case 8: // Puffball (Rare,Epic,Legendary)
+            case 01: goto case -7; // Mushroom (Common)
+            case 02: goto case -7; // Lichen (Uncommon)
+            case 03: goto case -7; // Spore (Uncommon)
+            case 04: goto case -7; // Truffle (Rare,Epic,Legendary)
+            case 05: goto case -7; // Yeast (Common)
+            case 06: goto case -7; // Coral (Rare,Epic,Legendary)
+            case 07: goto case -7; // Mold (Common)
+            case 08: goto case -7; // Puffball (Rare,Epic,Legendary)
+            case -7:
                 return CardFamily.Fungus;
+            default: goto case 0;
             case 0:
-            default:
                 return CardFamily.Unspecified;
         }
     }
@@ -225,6 +240,7 @@ public struct CardStruct {
         family = myFamily;
         dataEntry = 0;
         destroyed = false;
+        revealed = false;
         strengthPrimary = CardFamily.Unspecified;
         strengthSecondary = CardFamily.Unspecified;
         rarity = Rarity.Unspecified;
@@ -233,6 +249,21 @@ public struct CardStruct {
         // Apply default strengths
         strengthPrimary = defaultStrengthP(myFamily);
         strengthSecondary = defaultStrengthS(myFamily);
+    }
+
+    public CardStruct(int index) {
+        family = CardFamily.Unspecified;
+        dataEntry = index;
+        destroyed = false;
+        revealed = false;
+        strengthPrimary = CardFamily.Unspecified;
+        strengthSecondary = CardFamily.Unspecified;
+        rarity = Rarity.Unspecified;
+
+        family = determineCard(index);
+        // Apply default strengths
+        strengthPrimary = defaultStrengthP(family);
+        strengthSecondary = defaultStrengthS(family);
     }
 
     /// <summary>
@@ -244,6 +275,7 @@ public struct CardStruct {
         family = myFamily;
         dataEntry = 0;
         destroyed = false;
+        revealed = false;
         strengthPrimary = strengths[0];
         rarity = Rarity.Unspecified;
 
@@ -259,6 +291,7 @@ public struct CardStruct {
         family = cs.family;
         dataEntry = cs.dataEntry;
         destroyed = cs.destroyed;
+        revealed = cs.revealed;
         strengthPrimary = cs.strengthPrimary;
         strengthSecondary = cs.strengthSecondary;
         rarity = cs.rarity;
@@ -269,6 +302,10 @@ public struct CardStruct {
     /// </summary>
     public CardStruct Kill() {
         destroyed = true;
+        return this;
+    }
+    public CardStruct Reveal() {
+        revealed = true;
         return this;
     }
 

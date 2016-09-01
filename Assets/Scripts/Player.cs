@@ -11,11 +11,15 @@ public class Player : NetworkBehaviour {
     public Cards ActiveCards = new Cards(7);
     [SerializeField][SyncVar]
     public Cards Graveyard = new Cards(15);
+    HashSet<int> usedCards = new HashSet<int>(); // Lists are better in small sizes
 
     [SerializeField][SyncVar]
     public Cards Mulligan = new Cards(15);
     [SyncVar]
     int mulligan = 0;
+
+    [SyncVar]
+    public bool ready;
 
     public Button MulliganButton;
 
@@ -54,6 +58,12 @@ public class Player : NetworkBehaviour {
 
     //GameMaster function : end the mulligan
     public void StopMulligan() {
+        // Reveal cards to the other player (for the sake of keeping cards revealed for future rounds)
+        List<CardStruct> hand2 = new List<CardStruct>(15);
+        foreach (CardStruct c in ActiveCards)
+            hand2.Add(c.Reveal());
+        ActiveCards.Renew(hand2);
+
         mulligan = 0;
     }
 
@@ -63,15 +73,17 @@ public class Player : NetworkBehaviour {
     /// <param name="card">Mulligan'ed card</param>
     public void AddMulligan(Card card) {
         if(isLocalPlayer) {
-            if (card.selected == false && mulligan > 0 && Graveyard.Count < Deck.Count - ActiveCards.Count) {
-                card.selected = true;
-                CmdMulliganCard(card.ToCardStruct(), false);
-                mulligan--;
-                MulliganButton.interactable = true;
-            } else if (card.selected == true) {
-                card.selected = false;
-                CmdMulliganCard(card.ToCardStruct(), true);
-                mulligan++;
+            if (!card.Revealed()) {
+                if (card.selected == false && mulligan > 0 && Graveyard.Count < Deck.Count - ActiveCards.Count) {
+                    card.selected = true;
+                    CmdMulliganCard(card.ToCardStruct(), false);
+                    mulligan--;
+                    MulliganButton.interactable = true;
+                } else if (card.selected == true) {
+                    card.selected = false;
+                    CmdMulliganCard(card.ToCardStruct(), true);
+                    mulligan++;
+                }
             }
         }
     }
@@ -115,5 +127,9 @@ public class Player : NetworkBehaviour {
     }
     void OnDisable() {
         GetComponent<Events>().EventPhaseChange -= PhaseChange;
+    }
+
+    public HashSet<int> GetUsedCards() {
+        return usedCards;
     }
 }

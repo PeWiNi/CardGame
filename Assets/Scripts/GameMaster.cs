@@ -114,7 +114,7 @@ public class GameMaster : NetworkBehaviour {
         GameObject[] players = GameObject.FindGameObjectsWithTag("Player");
         p1 = players[0].GetComponent<Player>().ActiveCards;
         p2 = players[1].GetComponent<Player>().ActiveCards;
-        foreach (GameObject go in GameObject.FindGameObjectsWithTag("Player")) {
+        //foreach (GameObject go in GameObject.FindGameObjectsWithTag("Player")) {
             //go.GetComponent<Events>().SendCleanupDeck();
             CleanUp(players[0].GetComponent<Player>());
             CleanUp(players[1].GetComponent<Player>());
@@ -124,22 +124,21 @@ public class GameMaster : NetworkBehaviour {
 
             //GameBoard.GetComponent<Events>().SendUpdateCards(p1, p2); //Recieve event somewhere
             //go.GetComponent<Events>().SendUpdateCards(p1, p2); //Recieve event somewhere
-        }
+        //}
         // ToDo: mulligan before updating art (at least for both players)
         StartCoroutine(UpdateArt());
         MulliganPhase(true);
     }
 
     private void DrawCards(Player player) {
-        HashSet<int> rng = new HashSet<int>();
         //print("I am gonna go in there");
         while (player.ActiveCards.Count < player.ActiveCards.Size && player.ActiveCards.Count < player.Deck.Count - player.Graveyard.Count) {
             //print("I was here!");
             int rnd = Random.Range(0, player.Deck.Count);
-            if (!player.Deck.GetItem(rnd).destroyed) {
-                rng.Add(rnd);
+            if (!player.GetUsedCards().Contains(rnd)) {
+                player.GetUsedCards().Add(rnd);
                 //print("Card #" + rnd + " is being added " + (rng.Count > ActiveCards.Count) + ", total count: " + rng.Count);
-                if (rng.Count > player.ActiveCards.Count) {
+                if (player.GetUsedCards().Count > player.ActiveCards.Count) {
                     player.ActiveCards.Add(player.Deck.GetItem(rnd));
                 }
             }
@@ -211,6 +210,7 @@ public class GameMaster : NetworkBehaviour {
         print("ActiveHands is full again " + player.ActiveCards.Count);
         print("Hand after Mulligan: " + player.ActiveCards.ToString() + ", Cards Mulligan'ed: " + player.Mulligan);
         player.Mulligan.Clear();
+
         player.GetComponent<Events>().SendPhaseChange(Phase.Ready);
         StartCoroutine(UpdateArt());
     }

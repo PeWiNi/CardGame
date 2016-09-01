@@ -51,7 +51,7 @@ public class Menu : MonoBehaviour {
                     Destroy(c.gameObject);
                     killed = true;
                     continue;
-                } if (killed) c.transform.position -= new Vector3(.66f, 0, -0.01f);
+                } if (killed) c.transform.position -= new Vector3(0.85f, 0, -0.01f);
             }
         }
     }
@@ -76,24 +76,34 @@ public class Menu : MonoBehaviour {
     }
 
     void Update() {
-/*
-#if UNITY_ANDROID
         RaycastHit hit;
+#if UNITY_ANDROID
+        //RaycastHit hit;
         for (int i = 0; i < Input.touchCount; ++i) {
             if (Input.GetTouch(i).phase.Equals(TouchPhase.Began)) {
                 // Construct a ray from the current touch coordinates
                 Ray ray = Camera.main.ScreenPointToRay(Input.GetTouch(i).position);
                 if (Physics.Raycast(ray, out hit)) {
-                    hit.transform.gameObject.SendMessage("OnMouseDown");
+                    //hit.transform.gameObject.SendMessage("OnMouseDown");
+                    try {
+                        Card card = hit.collider.GetComponent<Card>();
+                        if(card.interaction == Card.Interaction.Add)
+                            AddCard(card);
+                        if (card.interaction == Card.Interaction.Remove)
+                            RemoveCard(card);
+                        if (card.interaction == Card.Interaction.Select) {
+                            card.owner.GetComponent<Player>().AddMulligan(card);
+                        }
+                        print(CardStruct.determineCard(card.cardEntry));
+                    } catch { print("Not a card.."); };
                 }
             }
         }
 #endif
-*/
-//#if UNITY_EDITOR
+#if UNITY_EDITOR || UNITY_STANDALONE
         if (Input.GetMouseButtonDown(0)) {
             Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-            RaycastHit hit;
+            //RaycastHit hit;
             //var select = GameObject.FindWithTag("select").transform;
             if (Physics.Raycast(ray, out hit, 100)) {
                 //select.tag = "none";
@@ -111,6 +121,20 @@ public class Menu : MonoBehaviour {
                 } catch { print("Not a card.."); };
             }
         }
-        //#endif
+#endif
+    }
+
+    public void PrintUsedCards() {
+        GameObject[] players = GameObject.FindGameObjectsWithTag("Player");
+        string s1 = "";
+        string s2 = "";
+        foreach (int i in players[0].GetComponent<Player>().GetUsedCards()) {
+            s1 += " [" + i + "]";
+        }
+        foreach (int i in players[1].GetComponent<Player>().GetUsedCards()) {
+            s2 += " [" + i + "]";
+        }
+        print("Player 1 used cards:" + s1 + ", " + players[0].GetComponent<Player>().GetUsedCards().Count);
+        print("Player 2 used cards:" + s2 + ", " + players[1].GetComponent<Player>().GetUsedCards().Count);
     }
 }
