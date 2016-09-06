@@ -56,7 +56,7 @@ public class Card : NetworkBehaviour {
                 if(owner.GetComponent<Player>().currentPhase == GameMaster.Phase.Mulligan || owner.GetComponent<Player>().currentPhase == GameMaster.Phase.Ready) {
                     bool bothReady = true;
                     foreach (GameObject pl in GameObject.FindGameObjectsWithTag("Player")) {
-                        if (!bothReady || pl.GetComponent<Player>().currentPhase != GameMaster.Phase.Ready)
+                        if (!bothReady || !pl.GetComponent<Player>().ready)
                             bothReady = false;
                     }
                     if ((owner.GetComponent<NetworkIdentity>().isLocalPlayer && !bothReady && cardEntry != list.GetItem(listIndex).dataEntry) || Revealed()) { // Maybe do something special to cards to indicate that the card is revealed (owner)

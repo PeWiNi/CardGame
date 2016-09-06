@@ -31,7 +31,7 @@ public class Player : NetworkBehaviour {
     void Start () {
         
         if (isLocalPlayer) {
-            Menu menu = GameObject.Find("NetworkManager").GetComponent<Menu>();
+            Menu menu = GameObject.FindObjectOfType<Menu>();
             GameObject[] players = GameObject.FindGameObjectsWithTag("Player");
             if (players.Length < 2) {
                 FindObjectOfType<Camera>().transform.Rotate(0, 0, 180);
@@ -140,20 +140,62 @@ public class Player : NetworkBehaviour {
     }
 
     void PhaseChange(GameMaster.Phase newPhase) {
-        if (newPhase == GameMaster.Phase.Ready)
-            CmdSendReady(true);
-        else { CmdSendReady(false); }
+        if(isLocalPlayer) {
+            if (newPhase == GameMaster.Phase.Ready)
+                CmdSendReady(true);
+            else { CmdSendReady(false); }
+            SetText(PhaseTranslate(newPhase));
+        }
         currentPhase = newPhase;
+    }
+
+    public void SetText(string txt) {
+        PhaseText.GetComponentInChildren<Text>().text = txt;
+        currentPhase = GameMaster.Phase.Endstate;
+    }
+
+    string PhaseTranslate(GameMaster.Phase phase) {
+        string txt = "";
+        switch(phase) {
+            case (GameMaster.Phase.Startup):
+                txt = "Waiting for players to connect..";
+                break;
+            case (GameMaster.Phase.Mulligan):
+                txt = "Choose cards to throw back in the deck";
+                break;
+            case (GameMaster.Phase.Ready):
+                txt = "Waiting on other player";
+                break;
+            case (GameMaster.Phase.PrimaryMatchup):
+                txt = "Primary matchup";
+                break;
+            case (GameMaster.Phase.SecondaryMatchup):
+                txt = "Secondary matchup";
+                break;
+            case (GameMaster.Phase.BonusMatchup):
+                txt = "Magic!";
+                break;
+            case (GameMaster.Phase.Aftermath):
+                txt = "Round ended press ready to continue";
+                break;
+        }
+        return txt;
     }
 
     void OnEnable() {
         GetComponent<Events>().EventPhaseChange += PhaseChange;
+        GetComponent<Events>().EventEnd += SetText;
     }
     void OnDisable() {
         GetComponent<Events>().EventPhaseChange -= PhaseChange;
+        GetComponent<Events>().EventEnd -= SetText;
     }
 
     public HashSet<int> GetUsedCards() {
         return usedCards;
+    }
+
+    public void SetTextField(GameObject go) {
+        PhaseText = go;
     }
 }

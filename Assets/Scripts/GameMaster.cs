@@ -8,11 +8,13 @@ public class GameMaster : NetworkBehaviour {
 
     Cards p1 = new Cards(7);
     Cards p2 = new Cards(7);
+    Player player1;
+    Player player2;
 
     public float timer = 1.5f;
 
     public enum Phase {
-        Startup, Mulligan, Ready, PrimaryMatchup, SecondaryMatchup, BonusMatchup, Aftermath
+        Startup, Mulligan, Ready, PrimaryMatchup, SecondaryMatchup, BonusMatchup, Aftermath, Endstate
     }
 
     public int mulliganCardCount = 3;
@@ -39,16 +41,19 @@ public class GameMaster : NetworkBehaviour {
         bool allReady = false;
         // Start
         while (players.Length < 2) { // Wait for all players
+            foreach (GameObject p in players) // Tell the players that they are waiting for all to connect
+                p.GetComponent<Events>().SendPhaseChange(Phase.Startup);
             yield return new WaitForSeconds(0.1f);
             players = GameObject.FindGameObjectsWithTag("Player");
         }
-        foreach (GameObject p in players) // currently in for good measure, DrawCards will change to Mulligan when ready
-            p.GetComponent<Events>().SendPhaseChange(Phase.Startup);
         yield return new WaitForSeconds(timer);
         #endregion
 
         #region Mulligan
         DrawCards();
+        int p1Size = p1.Count;
+        int p2Size = p2.Count;
+        allReady = false;
         while (!allReady) { // Wait for players to do their thing
             yield return new WaitForSeconds(0.1f);
             allReady = true;
@@ -88,8 +93,8 @@ public class GameMaster : NetworkBehaviour {
         int[] p1Secondary = strengthArray(playerCards[0], false);
         int[] p2Secondary = strengthArray(playerCards[1], false);
 
-        playerCards[0].Renew(killStuff(p1, p2Secondary));
-        playerCards[1].Renew(killStuff(p2, p1Secondary));
+        playerCards[0].Renew(killStuff(playerCards[0], p2Secondary));
+        playerCards[1].Renew(killStuff(playerCards[1], p1Secondary));
         print("Secondary matchup: ");
         printState(playerCards[0], playerCards[1]);
         StartCoroutine(UpdateArt());
@@ -98,17 +103,48 @@ public class GameMaster : NetworkBehaviour {
         foreach (GameObject p in players) p.GetComponent<Events>().SendPhaseChange(Phase.Aftermath);
 
         print("Round Ended");
-        while (!allReady) { // Wait for players to do their thing
-            yield return new WaitForSeconds(0.1f);
-            allReady = true;
-            foreach (GameObject p in players) {
-                if (allReady)
-                    allReady = p.GetComponent<Player>().ready;
+        CleanUp(players[0].GetComponent<Player>());
+        CleanUp(players[1].GetComponent<Player>());
+        StartCoroutine(UpdateArt());
+        if ((p1Size == players[0].GetComponent<Player>().ActiveCards.Count && p2Size == players[1].GetComponent<Player>().ActiveCards.Count) || playerCards[0].Count == 0 || playerCards[1].Count == 0) {
+            print("Game is at a stalemate");
+            Endstate(p1.Count == p2.Count ? 0 : p1.Count > p2.Count ? 1 : 2);
+        } else {
+            allReady = false;
+            while (!allReady) { // Wait for players to do their thing
+                yield return new WaitForSeconds(0.1f);
+                allReady = true;
+                foreach (GameObject p in players) {
+                    if (allReady)
+                        allReady = p.GetComponent<Player>().ready;
+                }
             }
+            print("Starting new Round");
+            StartCoroutine(StartGame());
         }
-        print("Starting new Round");
-        StartCoroutine(StartGame());
         yield return null;
+    }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="winner">0: draw, 1: player 1, 2: player 2</param>
+    void Endstate(int winner) {
+        GameObject[] players = GameObject.FindGameObjectsWithTag("Player");
+        switch (winner) {
+            case (0):
+                players[0].GetComponent<Events>().SendEndState("Draw");
+                players[1].GetComponent<Events>().SendEndState("Draw");
+                break;
+            case (1):
+                players[0].GetComponent<Events>().SendEndState("Winner");
+                players[1].GetComponent<Events>().SendEndState("Looser");
+                break;
+            case (2):
+                players[0].GetComponent<Events>().SendEndState("Looser");
+                players[1].GetComponent<Events>().SendEndState("Winner");
+                break;
+        }
     }
 
     public void Matchup(Cards p1Hand, Cards p2Hand) {

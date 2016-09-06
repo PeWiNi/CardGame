@@ -22,6 +22,9 @@ public class Menu : MonoBehaviour {
             if(ni.GetComponent<Card>())
                 ni.gameObject.SetActive(true);
         }
+        if (!slot) {
+            slot = GameObject.Find("Deck");
+        }
         // Add listeners to buttons
         if (!MulliganButton)
             MulliganButton = transform.FindChild("PlayerCanvas").GetComponentsInChildren<Button>()[0];
@@ -33,6 +36,7 @@ public class Menu : MonoBehaviour {
 
     public void SetPlayer(Player p) {
         print("Player set!");
+        p.SetTextField(transform.FindChild("PlayerCanvas").FindChild("PhaseText").gameObject);
         player = p;
     }
 
@@ -92,7 +96,8 @@ public class Menu : MonoBehaviour {
     bool Check(int card) {
         return Check(CardStruct.determineCard(card));
     }
-
+    
+    #region UI Hooks
     public void SendMulligan() {
         player.SendMulligan();
     }
@@ -100,6 +105,11 @@ public class Menu : MonoBehaviour {
     public void SendReady() {
         player.SendReady();
     }
+
+    public void StartGame() {
+
+    }
+    #endregion
 
     void Update() {
         if(player != null && !setup) {

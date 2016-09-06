@@ -16,6 +16,10 @@ public class Events : NetworkBehaviour {
     [SyncEvent]
     public event PhaseChange EventPhaseChange;
 
+    public delegate void EndState(string str);
+    [SyncEvent]
+    public event EndState EventEnd;
+
     public void SendMulligan(List<CardStruct> cards) { // Unused, happens through GameMaster and a integer value on Player
         if (EventMulligan != null)
             EventMulligan(cards);
@@ -30,5 +34,11 @@ public class Events : NetworkBehaviour {
     public void SendPhaseChange(GameMaster.Phase phase) {
         if (EventPhaseChange != null)
             EventPhaseChange(phase);
+    }
+
+    // Used to change the state for players (namely whether or not they can see the opponent's cards (Mulligan))
+    public void SendEndState(string txt) {
+        if (EventEnd != null)
+            EventEnd(txt);
     }
 }
