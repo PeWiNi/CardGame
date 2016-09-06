@@ -44,7 +44,7 @@ public class BoardScript : NetworkBehaviour {
                 go.GetComponent<Card>().interaction = Card.Interaction.Select;
                 go.GetComponent<Card>().SetRotation(Quaternion.Euler(0, 180, 180));
                 go.GetComponent<Card>().generation = drawIteration;
-                go.transform.position += new Vector3(0, 3, -1);
+                go.transform.position += new Vector3(0, 0, -1);
                 NetworkServer.Spawn(go);
             }
             if (p2.GetComponent<Player>().ActiveCards.Count > i) {

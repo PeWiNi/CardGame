@@ -21,7 +21,8 @@ public class Player : NetworkBehaviour {
     [SyncVar]
     public bool ready;
 
-    public Button MulliganButton;
+    Button MulliganButton;
+    GameObject PhaseText;
 
     [SyncVar]
     public GameMaster.Phase currentPhase = GameMaster.Phase.Startup;
@@ -32,18 +33,28 @@ public class Player : NetworkBehaviour {
         if (isLocalPlayer) {
             Menu menu = GameObject.Find("NetworkManager").GetComponent<Menu>();
             GameObject[] players = GameObject.FindGameObjectsWithTag("Player");
-            if (players.Length < 2)
+            if (players.Length < 2) {
                 FindObjectOfType<Camera>().transform.Rotate(0, 0, 180);
+            }
             setupDeck(menu.GetDeck());
-            MulliganButton.gameObject.SetActive(true);
-            MulliganButton.interactable = false;
+
+            menu.SetPlayer(this);
         }
+    }
+
+    void Update () {
+
     }
 
     void setupDeck(List<CardStruct.CardFamily> deck) {
         foreach(CardStruct.CardFamily ct in deck) {
             CmdAddToDeck(ct);
         }
+    }
+
+    public void SetMulliganButton(Button mb) {
+        MulliganButton = mb;
+        MulliganButton.interactable = false;
     }
 
     [Command]
@@ -107,6 +118,11 @@ public class Player : NetworkBehaviour {
         RemoveSelected();
     }
 
+    public void SendReady() {
+        if(currentPhase != GameMaster.Phase.Ready)
+            CmdSendReady(!ready);
+    }
+
     void RemoveSelected() {
         foreach(Card c in FindObjectsOfType<Card>()) {
             c.selected = false;
@@ -118,7 +134,15 @@ public class Player : NetworkBehaviour {
         FindObjectOfType<GameMaster>().Mulligan(this);
     }
 
+    [Command]
+    void CmdSendReady(bool isReady) {
+        ready = isReady;
+    }
+
     void PhaseChange(GameMaster.Phase newPhase) {
+        if (newPhase == GameMaster.Phase.Ready)
+            CmdSendReady(true);
+        else { CmdSendReady(false); }
         currentPhase = newPhase;
     }
 

@@ -7,8 +7,14 @@ public class Menu : MonoBehaviour {
     //[SerializeField]
     public List<CardStruct.CardFamily> deck = new List<CardStruct.CardFamily>();
     public GameObject slot;
+
+    public Player player;
+    bool setup = false;
+
+    public Button MulliganButton;
+    public Button ReadyButton;
     //public Cards deck = new Cards(15);
-    
+
     public void Start() {
         // Turn on the cards
         UnityEngine.Networking.NetworkIdentity[] uvs = Resources.FindObjectsOfTypeAll<UnityEngine.Networking.NetworkIdentity>();
@@ -16,6 +22,18 @@ public class Menu : MonoBehaviour {
             if(ni.GetComponent<Card>())
                 ni.gameObject.SetActive(true);
         }
+        // Add listeners to buttons
+        if (!MulliganButton)
+            MulliganButton = transform.FindChild("PlayerCanvas").GetComponentsInChildren<Button>()[0];
+        if (!ReadyButton)
+            ReadyButton = transform.FindChild("PlayerCanvas").GetComponentsInChildren<Button>()[1];
+        MulliganButton.onClick.AddListener(delegate { SendMulligan(); });
+        ReadyButton.onClick.AddListener(delegate { SendReady(); });
+    }
+
+    public void SetPlayer(Player p) {
+        print("Player set!");
+        player = p;
     }
 
     public void AddCard() {
@@ -75,7 +93,31 @@ public class Menu : MonoBehaviour {
         return Check(CardStruct.determineCard(card));
     }
 
+    public void SendMulligan() {
+        player.SendMulligan();
+    }
+
+    public void SendReady() {
+        player.SendReady();
+    }
+
     void Update() {
+        if(player != null && !setup) {
+            // Setup ready buttons
+            GameObject[] players = GameObject.FindGameObjectsWithTag("Player");
+            if (players.Length == 2) {
+                foreach (GameObject go in players) {
+                    Player pl = go.GetComponent<Player>();
+                    if (pl == player) {
+                        continue;
+                    }
+                    FindObjectsOfType<ReadyScript>()[1].player = pl;
+                }
+                FindObjectsOfType<ReadyScript>()[0].player = player;
+                player.SetMulliganButton(MulliganButton);
+                setup = true;
+            }
+        }
         RaycastHit hit;
 #if UNITY_ANDROID
         //RaycastHit hit;

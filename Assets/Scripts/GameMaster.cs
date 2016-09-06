@@ -9,6 +9,8 @@ public class GameMaster : NetworkBehaviour {
     Cards p1 = new Cards(7);
     Cards p2 = new Cards(7);
 
+    public float timer = 1.5f;
+
     public enum Phase {
         Startup, Mulligan, Ready, PrimaryMatchup, SecondaryMatchup, BonusMatchup, Aftermath
     }
@@ -23,8 +25,7 @@ public class GameMaster : NetworkBehaviour {
     /// </summary>
     // Use this for initialization
     void Start () {
-        foreach (GameObject p in GameObject.FindGameObjectsWithTag("Player"))
-            p.GetComponent<Events>().SendPhaseChange(Phase.Startup);
+        StartCoroutine(StartGame());
     }
 	
 	// Update is called once per frame
@@ -32,8 +33,82 @@ public class GameMaster : NetworkBehaviour {
 	
 	}
 
-    public void StartGame() {
+    public IEnumerator StartGame() {
+        #region setup
+        GameObject[] players = GameObject.FindGameObjectsWithTag("Player");
+        bool allReady = false;
+        // Start
+        while (players.Length < 2) { // Wait for all players
+            yield return new WaitForSeconds(0.1f);
+            players = GameObject.FindGameObjectsWithTag("Player");
+        }
+        foreach (GameObject p in players) // currently in for good measure, DrawCards will change to Mulligan when ready
+            p.GetComponent<Events>().SendPhaseChange(Phase.Startup);
+        yield return new WaitForSeconds(timer);
+        #endregion
 
+        #region Mulligan
+        DrawCards();
+        while (!allReady) { // Wait for players to do their thing
+            yield return new WaitForSeconds(0.1f);
+            allReady = true;
+            foreach(GameObject p in players) {
+                if (allReady)
+                    allReady = p.GetComponent<Player>().ready;
+            }
+        }
+        print("Mulligan Ended");
+        StartCoroutine(UpdateArt());
+        yield return new WaitForSeconds(timer);
+        #endregion
+
+        #region Prepping hands for Matchup
+        MulliganPhase(false);
+        Cards[] playerCards = new Cards[players.Length];
+        for (int i = 0; i < players.Length; i++)
+            playerCards[i] = players[i].GetComponent<Player>().ActiveCards;
+        print("Deck matchup: ");
+        printState(playerCards[0], playerCards[1]);
+        #endregion
+
+        #region Primary Matchup
+        foreach (GameObject p in players) p.GetComponent<Events>().SendPhaseChange(Phase.PrimaryMatchup);
+        int[] p1Primary = strengthArray(playerCards[0]);
+        int[] p2Primary = strengthArray(playerCards[1]);
+
+        playerCards[0].Renew(killStuff(playerCards[0], p2Primary));
+        playerCards[1].Renew(killStuff(playerCards[1], p1Primary));
+        print("Primary matchup: ");
+        printState(playerCards[0], playerCards[1]);
+        StartCoroutine(UpdateArt());
+        yield return new WaitForSeconds(timer);
+        #endregion
+        #region Secondary Matchup
+        foreach (GameObject p in GameObject.FindGameObjectsWithTag("Player")) p.GetComponent<Events>().SendPhaseChange(Phase.SecondaryMatchup);
+        int[] p1Secondary = strengthArray(playerCards[0], false);
+        int[] p2Secondary = strengthArray(playerCards[1], false);
+
+        playerCards[0].Renew(killStuff(p1, p2Secondary));
+        playerCards[1].Renew(killStuff(p2, p1Secondary));
+        print("Secondary matchup: ");
+        printState(playerCards[0], playerCards[1]);
+        StartCoroutine(UpdateArt());
+        yield return new WaitForSeconds(timer);
+        #endregion
+        foreach (GameObject p in players) p.GetComponent<Events>().SendPhaseChange(Phase.Aftermath);
+
+        print("Round Ended");
+        while (!allReady) { // Wait for players to do their thing
+            yield return new WaitForSeconds(0.1f);
+            allReady = true;
+            foreach (GameObject p in players) {
+                if (allReady)
+                    allReady = p.GetComponent<Player>().ready;
+            }
+        }
+        print("Starting new Round");
+        StartCoroutine(StartGame());
+        yield return null;
     }
 
     public void Matchup(Cards p1Hand, Cards p2Hand) {
