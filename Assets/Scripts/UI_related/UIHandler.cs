@@ -20,8 +20,11 @@ public class UIHandler : MonoBehaviour {
 	public GameObject winImage;
 	public GameObject drawImage;
 	List <GameObject> history; 
+	public bool notify=true;
 	GameObject currentMenu;
 	public bool inGame=false;
+	bool triggeredEscape=false;
+	public Toggle not;
 
 	// Use this for initialization
 	void Start () {
@@ -49,13 +52,20 @@ public class UIHandler : MonoBehaviour {
 	// Update is called once per frame
 	void Update () {
 		float axis = Input.GetAxis ("Cancel");
-		if (axis != 0)
-			if (inGame) 
-			{
-				currentMenu = matchMenu;
-				currentMenu.SetActive (true);
-			}
-			else GoBack ();
+		if (!triggeredEscape && axis != 0) {
+			if (inGame) {
+				if (currentMenu == matchMenu)
+					ResumeMatch ();
+				else {
+					currentMenu.SetActive (false);
+					currentMenu = matchMenu;
+					currentMenu.SetActive (true);
+				}
+			} else
+				GoBack ();
+			triggeredEscape = true;
+		} else if (axis == 0)
+			triggeredEscape = false;
 	}
 
 	public void FindGame()
@@ -78,6 +88,7 @@ public class UIHandler : MonoBehaviour {
 	public void Surrender()
 	{
 		currentMenu.SetActive (false);
+		inGame = false;
 		Debug.Log ("surrendered, you no get no experience. Cheater! ");
 		currentMenu = lossImage;
 		currentMenu.SetActive (true);
@@ -148,5 +159,48 @@ public class UIHandler : MonoBehaviour {
 		currentMenu = purchaseDMenu;
 		currentMenu.SetActive (true);
 		currentMenu.GetComponent<Text> ().text = "purchased or not purchased something. idk yet";
+	}
+
+	public void PushNotifications(){
+		notify = not.isOn;
+	}
+
+	public void SwitchFamilyCards(string value)
+	{
+		GameObject cardCollection = GameObject.Find ("Card_Collection");
+		GameObject temp = GameObject.Find (value);
+		temp.transform.SetSiblingIndex(cardCollection.transform.childCount-2);
+
+		//call here a switch cards function to display the cards unlocked and associated with the family displayed.
+	}
+
+	public void SwitchCardPage(int page){
+	
+		if (page > 0)
+			Debug.Log ("should go to the next page");
+		else 
+			Debug.Log ("should go to the previous page");
+	}
+
+	public void AddToDeck(GameObject button)
+	{
+		Debug.Log ("pressed on card:" + button.transform.name);
+	}
+
+	public void DeckViewer(GameObject deck)
+	{
+		Debug.Log ("open this deck:" +deck.transform.name);
+		Transform deckSlots = GameObject.Find ("Canvas").transform.FindChild ("Card_Collection").FindChild ("Decks");
+
+		//this AmIOpen should be the starting point of the "I'm looking at this deck now" functionality :)
+		AmIOpen[] decks=deckSlots.GetComponentsInChildren<AmIOpen>();
+		for (int i = 0; i < decks.Length; i++)
+			if (decks [i].yes)
+				deckSlots.transform.FindChild ("deck" + (i+1).ToString ()).GetComponent<AmIOpen>().yes=false; 
+		deck.GetComponent<AmIOpen>().yes = true;		
+
+		//add function to rollout a panel that contains card names & icons. ex: | Dog    [mammal icon]|
+		//connection to deck creation functionality. 
+
 	}
 }
