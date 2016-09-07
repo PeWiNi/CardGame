@@ -119,7 +119,7 @@ public class UIHandler : MonoBehaviour {
 	{
 		try{
 		//Debug.Log (history + " " + currentMenu);
-		history.Add (currentMenu);
+		if (currentMenu.transform.tag!="endScreen") history.Add (currentMenu);
 		currentMenu.SetActive (false);
 		currentMenu =(GameObject) this.GetType ().GetField (button).GetValue (this);
 		currentMenu.SetActive (true);
