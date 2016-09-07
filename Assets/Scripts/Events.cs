@@ -16,7 +16,7 @@ public class Events : NetworkBehaviour {
     [SyncEvent]
     public event PhaseChange EventPhaseChange;
 
-    public delegate void EndState(string str);
+    public delegate void EndState(int str);
     [SyncEvent]
     public event EndState EventEnd;
 
@@ -37,8 +37,8 @@ public class Events : NetworkBehaviour {
     }
 
     // Used to change the state for players (namely whether or not they can see the opponent's cards (Mulligan))
-    public void SendEndState(string txt) {
+    public void SendEndState(int state) {
         if (EventEnd != null)
-            EventEnd(txt);
+            EventEnd(state);
     }
 }

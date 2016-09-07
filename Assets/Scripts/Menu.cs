@@ -13,6 +13,7 @@ public class Menu : MonoBehaviour {
 
     public Button MulliganButton;
     public Button ReadyButton;
+    public Text GameStateText;
     //public Cards deck = new Cards(15);
 
     public void Start() {
@@ -30,14 +31,16 @@ public class Menu : MonoBehaviour {
             MulliganButton = transform.FindChild("PlayerCanvas").GetComponentsInChildren<Button>()[0];
         if (!ReadyButton)
             ReadyButton = transform.FindChild("PlayerCanvas").GetComponentsInChildren<Button>()[1];
+        if (!GameStateText)
+            GameStateText = transform.FindChild("PlayerCanvas").FindChild("PhaseText").GetComponentInChildren<Text>();
         MulliganButton.onClick.AddListener(delegate { SendMulligan(); });
         ReadyButton.onClick.AddListener(delegate { SendReady(); });
     }
 
     public void SetPlayer(Player p) {
         print("Player set!");
-        p.SetTextField(transform.FindChild("PlayerCanvas").FindChild("PhaseText").gameObject);
         player = p;
+        p.SetTextField(GameStateText.gameObject);
     }
 
     public void AddCard() {

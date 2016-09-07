@@ -31,10 +31,14 @@ public class Player : NetworkBehaviour {
     void Start () {
         
         if (isLocalPlayer) {
-            Menu menu = GameObject.FindObjectOfType<Menu>();
+            Menu[] menus = GameObject.FindObjectsOfType<Menu>();
+            Menu menu = menus[0];
             GameObject[] players = GameObject.FindGameObjectsWithTag("Player");
-            if (players.Length < 2) {
-                FindObjectOfType<Camera>().transform.Rotate(0, 0, 180);
+            for (int i = 0; i < menus.Length; i++) { 
+                if (menus[i].GetComponent<NetworkIdentity>().playerControllerId == GetComponent<NetworkIdentity>().playerControllerId) {
+                    if (players[i].GetComponent<NetworkIdentity>().isLocalPlayer && i == 0) { FindObjectOfType<Camera>().transform.Rotate(0, 0, 180); }
+                    menu = menus[i];
+                }
             }
             setupDeck(menu.GetDeck());
 
@@ -149,9 +153,13 @@ public class Player : NetworkBehaviour {
         currentPhase = newPhase;
     }
 
-    public void SetText(string txt) {
-        PhaseText.GetComponentInChildren<Text>().text = txt;
+    public void SetText(int state) {
+        SetText(state == 0 ? "Draw" : state == 1 ? "Winner" : "Better luck next time!");
         currentPhase = GameMaster.Phase.Endstate;
+    }
+
+    public void SetText(string txt) {
+        PhaseText.GetComponent<Text>().text = txt;
     }
 
     string PhaseTranslate(GameMaster.Phase phase) {

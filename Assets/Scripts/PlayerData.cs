@@ -28,6 +28,7 @@ public class PlayerData : NetworkLobbyPlayer {
     void Start () {
         DontDestroyOnLoad(this);
         if(!isLocalPlayer) {
+            GetComponent<Menu>().enabled = false;
             GetComponentInChildren<Canvas>().gameObject.SetActive(false);
         }
 	}
@@ -97,7 +98,7 @@ public class PlayerData : NetworkLobbyPlayer {
             }
         }
     }
-
+    /*
     void OnEnable() {
         Load();
     }
@@ -105,6 +106,7 @@ public class PlayerData : NetworkLobbyPlayer {
     void OnDisable() {
         Save();
     }
+    */
 }
 
 [Serializable]

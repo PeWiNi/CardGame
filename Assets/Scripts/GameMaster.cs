@@ -133,16 +133,16 @@ public class GameMaster : NetworkBehaviour {
         GameObject[] players = GameObject.FindGameObjectsWithTag("Player");
         switch (winner) {
             case (0):
-                players[0].GetComponent<Events>().SendEndState("Draw");
-                players[1].GetComponent<Events>().SendEndState("Draw");
+                players[0].GetComponent<Events>().SendEndState(0);
+                players[1].GetComponent<Events>().SendEndState(0);
                 break;
             case (1):
-                players[0].GetComponent<Events>().SendEndState("Winner");
-                players[1].GetComponent<Events>().SendEndState("Looser");
+                players[0].GetComponent<Events>().SendEndState(1);
+                players[1].GetComponent<Events>().SendEndState(2);
                 break;
             case (2):
-                players[0].GetComponent<Events>().SendEndState("Looser");
-                players[1].GetComponent<Events>().SendEndState("Winner");
+                players[0].GetComponent<Events>().SendEndState(2);
+                players[1].GetComponent<Events>().SendEndState(1);
                 break;
         }
     }
