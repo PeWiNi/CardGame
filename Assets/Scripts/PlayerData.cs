@@ -98,6 +98,35 @@ public class PlayerData : NetworkLobbyPlayer {
             }
         }
     }
+
+    void OnGUI() {
+        if(isLocalPlayer || isLocal()) {
+            GUI.Label(new Rect(410, 10, 150, 120), "Current exp: " + experience);
+            if (GUI.Button(new Rect(250, 10, 150, 40), "Save")) {
+                Save();
+            }
+            if (GUI.Button(new Rect(250, 50, 150, 40), "Load")) {
+                Load();
+            }
+            if (GUI.Button(new Rect(250, 90, 150, 40), "Exp Shower!")) {
+                RewardExperience(100);
+            }
+            if (GUI.Button(new Rect(250, 130, 150, 40), readyToBegin ? "Ready!" : "Not yet ready")) {
+                readyToBegin = !readyToBegin;
+                if (readyToBegin)
+                    SendReadyToBeginMessage();
+                else
+                    SendNotReadyToBeginMessage();
+            }
+        }
+    }
+
+    bool isLocal() {
+        if(GetComponent<Menu>().player)
+            return GetComponent<Menu>().player.GetComponent<NetworkIdentity>().playerControllerId == GetComponent<NetworkIdentity>().playerControllerId;
+        return false;
+    }
+
     /*
     void OnEnable() {
         Load();

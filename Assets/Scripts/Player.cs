@@ -24,6 +24,8 @@ public class Player : NetworkBehaviour {
     Button MulliganButton;
     GameObject PhaseText;
 
+    Menu menu;
+
     [SyncVar]
     public GameMaster.Phase currentPhase = GameMaster.Phase.Startup;
 
@@ -32,7 +34,7 @@ public class Player : NetworkBehaviour {
         
         if (isLocalPlayer) {
             Menu[] menus = GameObject.FindObjectsOfType<Menu>();
-            Menu menu = menus[0];
+            menu = menus[0];
             GameObject[] players = GameObject.FindGameObjectsWithTag("Player");
             for (int i = 0; i < menus.Length; i++) { 
                 if (menus[i].GetComponent<NetworkIdentity>().playerControllerId == GetComponent<NetworkIdentity>().playerControllerId) {
@@ -154,12 +156,19 @@ public class Player : NetworkBehaviour {
     }
 
     public void SetText(int state) {
-        SetText(state == 0 ? "Draw" : state == 1 ? "Winner" : "Better luck next time!");
-        currentPhase = GameMaster.Phase.Endstate;
+        if(isLocalPlayer) {
+            SetText(state == 0 ? "Draw" : state == 1 ? "Winner" : "Better luck next time!");
+            currentPhase = GameMaster.Phase.Endstate;
+        }
     }
 
     public void SetText(string txt) {
         PhaseText.GetComponent<Text>().text = txt;
+    }
+
+    public void PointsFromEndGame(int state) {
+        if (isLocalPlayer) 
+            menu.GetComponent<PlayerData>().RewardExperience(state == 1 ? ScoreData.EndState.Win : state == 2 ? ScoreData.EndState.Loose : ScoreData.EndState.Draw);
     }
 
     string PhaseTranslate(GameMaster.Phase phase) {
@@ -193,10 +202,12 @@ public class Player : NetworkBehaviour {
     void OnEnable() {
         GetComponent<Events>().EventPhaseChange += PhaseChange;
         GetComponent<Events>().EventEnd += SetText;
+        GetComponent<Events>().EventEnd += PointsFromEndGame;
     }
     void OnDisable() {
         GetComponent<Events>().EventPhaseChange -= PhaseChange;
         GetComponent<Events>().EventEnd -= SetText;
+        GetComponent<Events>().EventEnd -= PointsFromEndGame;
     }
 
     public HashSet<int> GetUsedCards() {

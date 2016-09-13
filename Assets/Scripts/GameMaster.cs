@@ -106,7 +106,7 @@ public class GameMaster : NetworkBehaviour {
         CleanUp(players[0].GetComponent<Player>());
         CleanUp(players[1].GetComponent<Player>());
         StartCoroutine(UpdateArt());
-        if ((p1Size == players[0].GetComponent<Player>().ActiveCards.Count && p2Size == players[1].GetComponent<Player>().ActiveCards.Count) || playerCards[0].Count == 0 || playerCards[1].Count == 0) {
+        if ((p1Size == players[0].GetComponent<Player>().ActiveCards.Count && p2Size == players[1].GetComponent<Player>().ActiveCards.Count)) {// || playerCards[0].Count == 0 || playerCards[1].Count == 0) {
             print("Game is at a stalemate");
             Endstate(p1.Count == p2.Count ? 0 : p1.Count > p2.Count ? 1 : 2);
         } else {
